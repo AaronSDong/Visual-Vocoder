@@ -4,7 +4,7 @@ import CreateWaveShape
 import threading
 
 class Wave:
-    def __init__(self, wave_shape='sine'):
+    def __init__(self, wave_shape='sine', t=0):
         # DEBUGGING VARIABLES
         self.sample_count = 0
         self.last_sample = 0
@@ -22,6 +22,7 @@ class Wave:
 
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32, channels=1, rate=self.sample_rate, output=True)
+        self.play(t=t)
 
     def get_next_chunk(self):
         samples = self.wave_shape[self.next_sample::int(self.f)]
@@ -38,8 +39,8 @@ class Wave:
 
     def play_loop(self, t=0):
         start_time = time.time()
-        infinite_flag = True if t==0 else False
-        while (time.time() - start_time < t or infinite_flag) and self.playing:
+        infinite_flag = True if t is None else False
+        while (infinite_flag or time.time() - start_time < t) and self.playing:
             self.play_chunk()
             self.slide_frequency()
 
@@ -90,10 +91,10 @@ class Wave:
 
 def main():
     sinewave = Wave()
-    sinewave.play(t=3)
+    #sinewave.play(t=3)
     sinewave.set_target_frequency(300.10354182)
     time.sleep(1)
-    sinewave.play(t=3)
+    #sinewave.play(t=3)
     sinewave.set_target_frequency(500.10354182)
     time.sleep(3)
     sinewave.stop()
