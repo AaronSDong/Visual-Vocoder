@@ -49,7 +49,7 @@ class Wave:
         time.sleep(.04)
 
         self.playing = True
-        self.thread = threading.Thread(target=self.play_loop, kwargs={'t': t}, daemon=True)
+        self.thread = threading.Thread(target=self.play_loop, kwargs={'t': t})
         self.thread.start()
 
     def play_chunk(self):

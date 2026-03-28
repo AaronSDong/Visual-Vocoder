@@ -48,17 +48,44 @@ def camera():
 
 def process_hands(frame, hands, mphands, mpdraw, wave):
     result = hands.process(frame)
-    if result.multi_hand_landmarks:
-        wrist_l_y = result.multi_hand_landmarks[0].landmark[0].y
-        wrist_r_y = result.multi_hand_landmarks[1].landmark[0].y if result.multi_hand_landmarks == 2 else 0
-        freq = (1 - wrist_l_y) * 2000
-        wave.set_target_frequency(freq)
+    if not result.multi_hand_landmarks: return
 
-        for handLm in result.multi_hand_landmarks:
-            mpdraw.draw_landmarks(frame, handLm, mphands.HAND_CONNECTIONS,
-                                  mpdraw.DrawingSpec(color=(255, 255, 255), circle_radius=3,
-                                                     thickness=cv.FILLED),
-                                  mpdraw.DrawingSpec(color=(255, 255, 255), thickness=1))
+    for handLm in result.multi_hand_landmarks:
+        process_nodes(handLm, wave)
+        mpdraw.draw_landmarks(frame, handLm, mphands.HAND_CONNECTIONS,
+                              mpdraw.DrawingSpec(color=(255, 255, 255), circle_radius=3,
+                                                 thickness=cv.FILLED),
+                              mpdraw.DrawingSpec(color=(255, 255, 255), thickness=1))
+
+def process_nodes(handLm, wave):
+    # Nodes values represent the type of value they store, or if a float, their note frequency
+    left_nodes = {
+
+    }
+
+    right_nodes = {
+
+    }
+
+    handiness = handLm.multi_handedness
+    node_list = left_nodes if handiness == "Left" else right_nodes
+    octave = 2
+
+    for i in handLm:
+        if node_list[i] == 'palm': adjust_palm_values(handLm[0], wave)
+        elif node_list[i] == 'thumb': adjust_octave(handLm, wave)
+        elif type(node_list[i]) == int: adjust_note(node_list[i], octave, wave)
+
+def adjust_palm_values(node, wave):
+    wrist_l_y = node.y
+    freq = (1 - wrist_l_y) * 2000
+    wave.set_target_frequency(freq)
+
+def adjust_octave(handLm, wave):
+    pass
+
+def adjust_note(freq, octave, wave):
+    pass
 
 def main():
     camera()
