@@ -26,16 +26,23 @@ class Wave:
 
     def get_next_chunk(self):
         samples = self.wave_shape[self.next_sample::int(self.f)]
-        self.next_sample = int(self.f - ((len(self.wave_shape) - self.next_sample) % self.f))
-        if self.next_sample == self.f: self.next_sample = 0
+        self.next_sample = int(self.f - ((len(self.wave_shape) - self.next_sample) % int(self.f)))
+        if self.next_sample >= int(self.f): self.next_sample -= int(self.f)
 
         # DEBUGGING
         #self.sample_count += len(samples)
         #print(self.next_sample, (len(self.wave_shape) // self.f)*self.f)
+        #print(-samples[0]+self.last_sample, samples[1]-samples[0], self.wave_shape[1]-self.wave_shape[0], '\n', samples[-2]-samples[-1], end=' ')
         #print(samples[0], samples[1], '\n', samples[-2], samples[-1], self.next_sample, end=' ')
+        # if abs(abs(abs(-samples[0])+abs(self.last_sample)) - abs(abs(samples[1])+abs(samples[0]))) > .3 and (self.f != 300.2124435243 and self.f != 440):
+        #     print(self.f)
+        #     print(abs(abs(abs(-samples[0])+abs(self.last_sample)) - abs(abs(samples[1])+abs(samples[0]))))
+        #     print(self.last_sample, samples[0], samples[1])
+        #     print(-samples[0]+self.last_sample, samples[1]-samples[0], samples[-2]-samples[-1])
+        #     exit()
+        self.last_sample = samples[-1]
 
         self.output_bytes = (self.volume * samples).tobytes()
-        self.last_sample = samples[-1]
 
     def play_loop(self, t=0):
         start_time = time.time()
@@ -90,12 +97,15 @@ class Wave:
 
 
 def main():
-    sinewave = Wave()
+    sinewave = Wave(t=6)
+    sinewave.set_direct_frequency(300.2124435243)
+    sinewave.set_target_frequency(800.204817204)
+    #sinewave2 = Wave(t=None)
+    # sinewave.play(t=3)
+    #sinewave2.set_target_frequency(400.10354182)
+    time.sleep(6)
     #sinewave.play(t=3)
-    sinewave.set_target_frequency(300.10354182)
-    time.sleep(1)
-    #sinewave.play(t=3)
-    sinewave.set_target_frequency(500.10354182)
+    sinewave.set_target_frequency(531.10354182)
     time.sleep(3)
     sinewave.stop()
 

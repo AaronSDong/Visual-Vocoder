@@ -53,6 +53,8 @@ def camera():
     # When everything done, release the capture
     cap.release()
     cv.destroyAllWindows()
+    for wave in wave_list:
+        wave.stop()
 
 def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
     result = hands.process(frame)
@@ -85,10 +87,9 @@ def process_nodes(handLm, wave_list, handedness):
 
 def adjust_palm_values(node, wave_list, handedness):
     wrist_l_y = node.y
-    freq = (1 - wrist_l_y) * 2000
+    freq = round((1 - wrist_l_y) * 2000, 1)
 
     wave_index = 0 if handedness.lower() == 'left' else 1  # placeholder for now
-    #print(wave_index)
     wave_list[wave_index].set_target_frequency(freq)
 
 def adjust_octave(handLm, wave):
