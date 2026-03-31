@@ -20,7 +20,7 @@ def calculate_fps(prev_time, frame):
 def create_synths():
     wave_list = []
     for i in range(2):  # change to 8 later
-        wave_list.append(Wave.Wave(wave_shape='sine', t=None))  # Automatic playing is placeholder
+        wave_list.append(Wave.Wave(wave_shape='sine', t=None, f=100*(i+1)))  # Automatic playing is placeholder
 
     return wave_list
 
@@ -30,7 +30,7 @@ def camera():
     cap.set(cv.CAP_PROP_FPS, 30)
 
     mphands = mp.solutions.hands
-    hands = mphands.Hands(max_num_hands= 2, min_detection_confidence= 0.2, min_tracking_confidence= 0.2 )
+    hands = mphands.Hands(max_num_hands= 2, min_detection_confidence= 0.5, min_tracking_confidence= 0.5)
     mpdraw = mp.solutions.drawing_utils
 
     wave_list = create_synths()
@@ -67,7 +67,7 @@ def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
         else:
             handedness = handedness_list[1].classification[0].label
         if not mirrored_camera:  # Swap as the camera is not mirrored
-            handedness = 'right' if handedness == 'left' else 'left'
+            handedness = 'Right' if handedness == 'Left' else 'Left'
 
         handLm = result.multi_hand_landmarks[i]
         process_nodes(handLm, wave_list, handedness)
@@ -77,16 +77,20 @@ def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
                               mpdraw.DrawingSpec(color=(255, 255, 255), thickness=1))
 
 def process_nodes(handLm, wave_list, handedness):
-    node_list = get_nodes(handedness)
+    node_map, wave_map, tolerance_map = get_maps(handedness)
     octave = 2
 
     for i in range(len(handLm.landmark)):
-        if node_list[i] == 'palm': adjust_palm_values(handLm.landmark[0], wave_list, handedness)
-        elif node_list[i] == 'thumb': adjust_octave(handLm, wave_list)
-        elif type(node_list[i]) == int: adjust_note(node_list[i], octave, wave_list)
+        wave_num = wave_map[i]
+        tolerance = tolerance_map[i]
+        if node_map[i] == 'palm': adjust_palm_values(handLm.landmark[0], wave_list, handedness)
+        elif node_map[i] == 'thumb': adjust_octave(handLm, wave_list)
+        elif type(node_map[i]) == int: adjust_note(handLm.landmark[i], handLm.landmark[i-3], wave_list,
+                                                   wave_num, tolerance)
 
-def adjust_palm_values(node, wave_list, handedness):
-    wrist_l_y = node.y
+def adjust_palm_values(palm_landmark, wave_list, handedness):
+    return
+    wrist_l_y = palm_landmark.y
     freq = round((1 - wrist_l_y) * 2000, 1)
 
     wave_index = 0 if handedness.lower() == 'left' else 1  # placeholder for now
@@ -95,60 +99,73 @@ def adjust_palm_values(node, wave_list, handedness):
 def adjust_octave(handLm, wave):
     pass
 
-def adjust_note(freq, octave, wave):
-    pass
+def adjust_note(finger_landmark, target_landmark,wave_list, wave_num, tolerance):
+    if wave_num > 1: return
+    if finger_is_closed(finger_landmark, target_landmark, tolerance):
+        wave_list[wave_num].play(t=None)
+    else:
+        wave_list[wave_num].play(t=0)
 
-def get_nodes(handedness):
+
+def finger_is_closed(finger_landmark, target_landmark, tolerance):
+    x0, y0, z0 = finger_landmark.x, finger_landmark.y, finger_landmark.z
+    x1, y1, z1 = target_landmark.x, target_landmark.y, target_landmark.z
+    z_average = abs((z0 + z1) / 2)
+    return distance(x0, y0, x1, y1) < z_average*tolerance
+
+def distance(x0, y0, x1, y1):
+    return ((x1 - x0)**2 + (y1 - y0)**2)**.5
+
+def get_maps(handedness):
     # Nodes values represent the type of value they store, or if a float, their note frequency
     left_nodes = {
+        **{i: None for i in range(21)},
         0: 'palm',
-        1: None,
-        2: None,
-        3: None,
         4: 'thumb',
-        5: None,
-        6: None,
-        7: None,
-        8: 12,
-        9: None,
-        10: None,
-        11: None,
-        12: 16,
-        13: None,
-        14: None,
-        15: None,
-        16: 20,
-        17: None,
-        18: None,
-        19: None,
-        20: 8,
+        8: 100,
+        12: 200,
+        16: 300,
+        20: 400
     }
 
     right_nodes = {
+        **{i: None for i in range(21)},
         0: 'palm',
-        1: None,
-        2: None,
-        3: None,
         4: 'thumb',
-        5: None,
-        6: None,
-        7: None,
-        8: 12,
-        9: None,
-        10: None,
-        11: None,
-        12: 16,
-        13: None,
-        14: None,
-        15: None,
-        16: 20,
-        17: None,
-        18: None,
-        19: None,
-        20: 8,
+        8: 800,
+        12: 700,
+        16: 600,
+        20: 500
     }
 
-    return left_nodes if handedness == 'left' else right_nodes
+    left_waves = {
+        **{i: None for i in range(21)},
+        8: 0,
+        12: 1,
+        16: 2,
+        20: 3,
+    }
+
+    right_waves = {
+        **{i: None for i in range(21)},
+        8: 7,
+        12: 6,
+        16: 5,
+        20: 4,
+    }
+
+    tolerances = {
+        **{i: None for i in range(21)},
+        8: 3,
+        12: 4,
+        16: 2.5,
+        20: 2.2,
+    }
+
+    if handedness == 'Left':
+        return left_nodes, left_waves, tolerances
+    else:
+        return right_nodes, right_waves, tolerances
 
 def main():
     camera()

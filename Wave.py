@@ -110,9 +110,14 @@ class Wave:
 
 
 def main():
-    sinewave = Wave(t=None, f=300.3)
-    sinewave2 = Wave(t=None, f=300.6)
-    time.sleep(6)
+    sinewave = Wave(t=0, f=300)
+    sinewave2 = Wave(t=0, f=300.6)
+    sinewave.set_target_frequency(440)
+    sinewave2.set_target_frequency(440)
+    time.sleep(2)
+    sinewave.play(4)
+    sinewave2.play(4)
+    time.sleep(2)
     sinewave.stop()
     sinewave2.stop()
 
