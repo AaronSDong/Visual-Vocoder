@@ -2,15 +2,16 @@ import time
 import pyaudio
 import CreateWaveShape
 import threading
+import numpy as np
 
 class Wave:
-    def __init__(self, wave_shape='sine', t=0):
+    def __init__(self, wave_shape='sine', t=0, f=440.0):
         # DEBUGGING VARIABLES
         self.sample_count = 0
         self.last_sample = 0
 
-        self.f = 440
-        self.target_f = 440
+        self.f = f
+        self.target_f = f
         self.sample_rate = 44100
         self.volume = .5
         note_multiple = 1.05946
@@ -25,21 +26,33 @@ class Wave:
         self.play(t=t)
 
     def get_next_chunk(self):
-        samples = self.wave_shape[self.next_sample::int(self.f)]
-        self.next_sample = int(self.f - ((len(self.wave_shape) - self.next_sample) % int(self.f)))
-        if self.next_sample >= int(self.f): self.next_sample -= int(self.f)
+        samples_per_frequency = (len(self.wave_shape) - self.next_sample) // self.f
+
+        if int((len(self.wave_shape) - self.next_sample) % self.f) != 0:
+            sampling_range = range(int(samples_per_frequency)+1)
+            wave_ends_at_zero = False
+        else:
+            sampling_range = range(int(samples_per_frequency))
+            wave_ends_at_zero = True
+
+        samples = np.array([self.wave_shape[round(self.next_sample + self.f*i)] for i in sampling_range])
+
+        if wave_ends_at_zero:
+            self.next_sample = 0
+        else:
+            location_of_last_sample = ((samples_per_frequency * self.f) + self.next_sample)
+            self.next_sample = int(location_of_last_sample - len(self.wave_shape) + self.f)
+            if self.next_sample >= self.f: self.next_sample = int(self.next_sample - self.f)
 
         # DEBUGGING
-        #self.sample_count += len(samples)
-        #print(self.next_sample, (len(self.wave_shape) // self.f)*self.f)
-        #print(-samples[0]+self.last_sample, samples[1]-samples[0], self.wave_shape[1]-self.wave_shape[0], '\n', samples[-2]-samples[-1], end=' ')
-        #print(samples[0], samples[1], '\n', samples[-2], samples[-1], self.next_sample, end=' ')
-        # if abs(abs(abs(-samples[0])+abs(self.last_sample)) - abs(abs(samples[1])+abs(samples[0]))) > .3 and (self.f != 300.2124435243 and self.f != 440):
+        # print(-samples[0]+self.last_sample, samples[1]-samples[0], self.wave_shape[1]-self.wave_shape[0], '\n', samples[-2]-samples[-1], end=' ')
+        # print(samples[0], samples[1], '\n', samples[-2], samples[-1], self.next_sample, self.f, end=' ')
+        # print(self.last_sample-samples[0], samples[1]-samples[0], abs(self.last_sample-samples[0]) - abs(samples[0]-samples[1]))
+        # if abs(abs(self.last_sample-samples[0]) - abs(samples[0]-samples[1])) > .01 and (self.f != 200.3 and self.f != 440):
         #     print(self.f)
-        #     print(abs(abs(abs(-samples[0])+abs(self.last_sample)) - abs(abs(samples[1])+abs(samples[0]))))
         #     print(self.last_sample, samples[0], samples[1])
-        #     print(-samples[0]+self.last_sample, samples[1]-samples[0], samples[-2]-samples[-1])
         #     exit()
+
         self.last_sample = samples[-1]
 
         self.output_bytes = (self.volume * samples).tobytes()
@@ -97,17 +110,11 @@ class Wave:
 
 
 def main():
-    sinewave = Wave(t=6)
-    sinewave.set_direct_frequency(300.2124435243)
-    sinewave.set_target_frequency(800.204817204)
-    #sinewave2 = Wave(t=None)
-    # sinewave.play(t=3)
-    #sinewave2.set_target_frequency(400.10354182)
+    sinewave = Wave(t=None, f=300.3)
+    sinewave2 = Wave(t=None, f=300.6)
     time.sleep(6)
-    #sinewave.play(t=3)
-    sinewave.set_target_frequency(531.10354182)
-    time.sleep(3)
     sinewave.stop()
+    sinewave2.stop()
 
 if __name__ == '__main__':
     main()
