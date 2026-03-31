@@ -2,6 +2,7 @@ import cv2 as cv
 import time
 import mediapipe as mp
 import Wave
+import WaveGroup
 
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')
@@ -17,23 +18,18 @@ def calculate_fps(prev_time, frame):
     cv.putText(frame, fps_text, (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     return prev_time
 
-def create_synths():
-    wave_list = []
-    for i in range(2):  # change to 8 later
-        wave_list.append(Wave.Wave(wave_shape='sine', t=None, f=100*(i+1)))  # Automatic playing is placeholder
-
-    return wave_list
-
 def camera():
     mirrored_camera = True
     cap = cv.VideoCapture(0)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, 300)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 360)
     cap.set(cv.CAP_PROP_FPS, 30)
 
     mphands = mp.solutions.hands
-    hands = mphands.Hands(max_num_hands= 2, min_detection_confidence= 0.5, min_tracking_confidence= 0.5)
+    hands = mphands.Hands(max_num_hands= 2, min_detection_confidence= 0.4, min_tracking_confidence= 0.6)
     mpdraw = mp.solutions.drawing_utils
 
-    wave_list = create_synths()
+    wave_list = WaveGroup.WaveGroup(f_list=[100*(i+1) for i in range(8)])
 
     # Debugging
     prev_time = 0
@@ -53,8 +49,7 @@ def camera():
     # When everything done, release the capture
     cap.release()
     cv.destroyAllWindows()
-    for wave in wave_list:
-        wave.stop()
+    wave_list.stop_all()
 
 def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
     result = hands.process(frame)
@@ -100,18 +95,19 @@ def adjust_octave(handLm, wave):
     pass
 
 def adjust_note(finger_landmark, target_landmark,wave_list, wave_num, tolerance):
-    if wave_num > 1: return
     if finger_is_closed(finger_landmark, target_landmark, tolerance):
-        wave_list[wave_num].play(t=None)
-    else:
-        wave_list[wave_num].play(t=0)
-
+        if wave_list.active_waves[wave_num]:
+            wave_list.active_waves[wave_num] = 3
+            return
+        wave_list.play_wave(wave_num, None)
+    elif wave_list.active_waves[wave_num]:
+        wave_list.deactive_wave_attempt(wave_num)
 
 def finger_is_closed(finger_landmark, target_landmark, tolerance):
     x0, y0, z0 = finger_landmark.x, finger_landmark.y, finger_landmark.z
     x1, y1, z1 = target_landmark.x, target_landmark.y, target_landmark.z
     z_average = abs((z0 + z1) / 2)
-    return distance(x0, y0, x1, y1) < z_average*tolerance
+    return distance(x0, y0, x1, y1) < (z_average**.8)*(tolerance*.5)
 
 def distance(x0, y0, x1, y1):
     return ((x1 - x0)**2 + (y1 - y0)**2)**.5
@@ -156,10 +152,10 @@ def get_maps(handedness):
 
     tolerances = {
         **{i: None for i in range(21)},
-        8: 3,
-        12: 4,
-        16: 2.5,
-        20: 2.2,
+        8: 3.5,  # index
+        12: 5,  # middle
+        16: 3,  # ring
+        20: 2.2,  # pinky
     }
 
     if handedness == 'Left':
