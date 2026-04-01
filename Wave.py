@@ -5,7 +5,7 @@ import threading
 import numpy as np
 
 class Wave:
-    def __init__(self, wave_shape='sine', t=0, f=440.0, input_vol=1.0):
+    def __init__(self, wave_shape='sine', t=0, f=440.0, max_vol=1.0):
         # DEBUGGING VARIABLES
         self.sample_count = 0
         self.last_sample = 0
@@ -15,17 +15,20 @@ class Wave:
         self.sample_rate = 44100
         note_multiple = 1.05946
         self.frequency_step = (note_multiple ** (1/30))
-        self.volume = input_vol
-        self.target_volume = input_vol
-        self.volume_step = .01
+        self.volume = 0
+        self.target_volume = max_vol
+        self.max_volume = max_vol
+        self.volume_step = .02
 
         self.output_bytes = None
         self.next_sample = 0
         self.wave_shape = CreateWaveShape.CreateWaveShape(wave_shape, self.sample_rate).array
 
+        self.playing = True
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32, channels=1, rate=self.sample_rate, output=True)
         self.play(t=t)
+        self.thread = None
 
     def get_next_chunk(self):
         samples_per_frequency = (len(self.wave_shape) - self.next_sample) // self.f
@@ -59,40 +62,49 @@ class Wave:
 
         self.output_bytes = (self.volume * samples).tobytes()
 
-    def play_loop(self, t=0):
+    def play_loop(self, t=0.0):
         start_time = time.time()
         infinite_flag = True if t is None else False
         while (infinite_flag or time.time() - start_time < t) and self.playing:
             self.play_chunk()
             self.slide_frequency()
+            self.slide_volume()
+
+        # Fade out cleanly before exiting
+        self.target_volume = 0
+        while self.volume != self.target_volume:
+            self.play_chunk()
+            self.slide_volume()
 
     def play(self, t=0):
-        self.pause()
+        self.target_volume = self.max_volume
+        self.playing = False
+        time.sleep(.04)
 
         self.playing = True
+        self.volume = 0
+        self.target_volume = self.max_volume
+        self.next_sample = 0
         self.thread = threading.Thread(target=self.play_loop, kwargs={'t': t})
         self.thread.start()
 
     def play_chunk(self):
-        start_time = time.time()
-
         self.get_next_chunk()
         self.stream.write(self.output_bytes)
-        #print("Played sound for {:.8f} seconds".format(time.time() - start_time), self.sample_count)
 
     def pause(self):
-        while self.volume != self.target_volume:
-            self.slide_volume()  # wait until volume is zero to avoid sudden clipping
+        self.target_volume = 0
 
         # remove previous thread
         self.playing = False
         time.sleep(.04)
 
-    def set_target_frequency(self, frequency):
+    def set_frequency(self, frequency):
         self.target_f = frequency
 
     def set_direct_frequency(self, frequency):
         self.f = frequency
+        self.target_f = frequency
 
     def slide_frequency(self):
         if self.f == self.target_f: return
@@ -106,13 +118,17 @@ class Wave:
         # if pitch change overcompensates, set f to the target
         if f_is_lower_flag != (self.f < self.target_f): self.f = self.target_f
 
-    def set_target_volume(self, volume):
+    def set_volume(self, volume):
+        self.max_volume = volume
         self.target_volume = volume
 
     def set_direct_volume(self, volume):
         self.volume = volume
+        self.target_volume = volume
+        if self.max_volume < volume: self.max_volume = volume
 
     def slide_volume(self):
+        #print(self.volume)
         if self.volume == self.target_volume: return
         elif abs(self.volume - self.target_volume) < self.volume_step:
             self.volume = self.target_volume
@@ -137,11 +153,17 @@ class Wave:
 def main():
     sinewave = Wave(t=None, f=300)
     #sinewave2 = Wave(t=0, f=300.6)
-    sinewave.set_target_frequency(440)
+    sinewave.set_frequency(440)
     #sinewave2.set_target_frequency(440)
     time.sleep(2)
+    sinewave.set_volume(.5)
+    time.sleep(2)
+    sinewave.pause()
+    time.sleep(1)
     sinewave.play(4)
     #sinewave2.play(4)
+    time.sleep(2)
+    sinewave.set_volume(1.0)
     time.sleep(2)
     sinewave.stop()
     #sinewave2.stop()

@@ -34,6 +34,7 @@ def camera():
     prev_time = 0
 
     while True:
+        global frame
         ret, frame = cap.read()
 
         if mirrored_camera: frame = cv.flip(frame, 1)
@@ -94,6 +95,7 @@ def adjust_octave(handLm, wave):
     pass
 
 def adjust_note(finger_landmark, target_landmark,wave_list, wave_num, tolerance):
+    if wave_list.active_waves[wave_num]: tolerance = tolerance[0], tolerance[1]*2  # increase range to turn off note
     if finger_is_closed(finger_landmark, target_landmark, tolerance):
         if wave_list.active_waves[wave_num]:
             wave_list.active_waves[wave_num] = 3
@@ -105,10 +107,19 @@ def adjust_note(finger_landmark, target_landmark,wave_list, wave_num, tolerance)
         wave_list.deactive_wave_attempt(wave_num)
 
 def finger_is_closed(finger_landmark, target_landmark, tolerance):
+    t0, t1 = tolerance
+    print(t0, t1)
     x0, y0, z0 = finger_landmark.x, finger_landmark.y, finger_landmark.z
     x1, y1, z1 = target_landmark.x, target_landmark.y, target_landmark.z
-    z_average = abs((z0 + z1) / 2)
-    return distance(x0, y0, x1, y1) < (z_average**1.3)*(tolerance*1.8)
+    z_average = round(abs((z0 + z1) / 2), 4)
+
+    # Debugging
+    h, w, _ = frame.shape
+    cx, cy = int(x0 * w), int(y0 * h)
+    radius = int((z_average ** t0) * t1 * min(w, h))  # scale radius too
+
+    cv.circle(frame, (cx, cy), radius, (255, 0, 0), 2)
+    return distance(x0, y0, x1, y1) < (z_average**t0)*t1
 
 def distance(x0, y0, x1, y1):
     return ((x1 - x0)**2 + (y1 - y0)**2)**.5
@@ -153,10 +164,10 @@ def get_maps(handedness):
 
     tolerances = {
         **{i: None for i in range(21)},
-        8: 3.5,  # index
-        12: 5,  # middle
-        16: 3,  # ring
-        20: 2.2,  # pinky
+        8: (0.45, .34),  # index
+        12: (0.45, .38),  # middle
+        16: (0.5, .32),  # ring
+        20: (0.42, .24),  # pinky
     }
 
     if handedness == 'Left':
