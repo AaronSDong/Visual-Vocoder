@@ -5,7 +5,7 @@ import threading
 import numpy as np
 
 class Wave:
-    def __init__(self, wave_shape='sine', t=0, f=440.0):
+    def __init__(self, wave_shape='sine', t=0, f=440.0, input_vol=1.0):
         # DEBUGGING VARIABLES
         self.sample_count = 0
         self.last_sample = 0
@@ -13,9 +13,11 @@ class Wave:
         self.f = f
         self.target_f = f
         self.sample_rate = 44100
-        self.volume = .5
         note_multiple = 1.05946
         self.frequency_step = (note_multiple ** (1/30))
+        self.volume = input_vol
+        self.target_volume = input_vol
+        self.volume_step = .01
 
         self.output_bytes = None
         self.next_sample = 0
@@ -65,9 +67,7 @@ class Wave:
             self.slide_frequency()
 
     def play(self, t=0):
-        # remove previous thread
-        self.playing = False
-        time.sleep(.04)
+        self.pause()
 
         self.playing = True
         self.thread = threading.Thread(target=self.play_loop, kwargs={'t': t})
@@ -79,6 +79,14 @@ class Wave:
         self.get_next_chunk()
         self.stream.write(self.output_bytes)
         #print("Played sound for {:.8f} seconds".format(time.time() - start_time), self.sample_count)
+
+    def pause(self):
+        while self.volume != self.target_volume:
+            self.slide_volume()  # wait until volume is zero to avoid sudden clipping
+
+        # remove previous thread
+        self.playing = False
+        time.sleep(.04)
 
     def set_target_frequency(self, frequency):
         self.target_f = frequency
@@ -98,6 +106,23 @@ class Wave:
         # if pitch change overcompensates, set f to the target
         if f_is_lower_flag != (self.f < self.target_f): self.f = self.target_f
 
+    def set_target_volume(self, volume):
+        self.target_volume = volume
+
+    def set_direct_volume(self, volume):
+        self.volume = volume
+
+    def slide_volume(self):
+        if self.volume == self.target_volume: return
+        elif abs(self.volume - self.target_volume) < self.volume_step:
+            self.volume = self.target_volume
+            return
+
+        if self.volume > self.target_volume:
+            self.volume -= self.volume_step
+        else:
+            self.volume += self.volume_step
+
     def set_wave_shape(self, shape):
         self.wave_shape = CreateWaveShape.CreateWaveShape(shape, self.sample_rate).array
 
@@ -110,16 +135,16 @@ class Wave:
 
 
 def main():
-    sinewave = Wave(t=0, f=300)
-    sinewave2 = Wave(t=0, f=300.6)
+    sinewave = Wave(t=None, f=300)
+    #sinewave2 = Wave(t=0, f=300.6)
     sinewave.set_target_frequency(440)
-    sinewave2.set_target_frequency(440)
+    #sinewave2.set_target_frequency(440)
     time.sleep(2)
     sinewave.play(4)
-    sinewave2.play(4)
+    #sinewave2.play(4)
     time.sleep(2)
     sinewave.stop()
-    sinewave2.stop()
+    #sinewave2.stop()
 
 if __name__ == '__main__':
     main()

@@ -15,7 +15,8 @@ class WaveGroup:
     def deactive_wave_attempt(self, wave_num):
         self.active_waves[wave_num] -= 1
         if self.active_waves[wave_num] == 0:
-            self.wave_list[wave_num].play(t=0)
+            print('deactivated')
+            self.wave_list[wave_num].pause()
 
     def stop_all(self):
         for wave in self.wave_list:

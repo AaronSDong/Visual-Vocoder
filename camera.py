@@ -1,7 +1,6 @@
 import cv2 as cv
 import time
 import mediapipe as mp
-import Wave
 import WaveGroup
 
 import warnings
@@ -99,15 +98,17 @@ def adjust_note(finger_landmark, target_landmark,wave_list, wave_num, tolerance)
         if wave_list.active_waves[wave_num]:
             wave_list.active_waves[wave_num] = 3
             return
+        print('active')
         wave_list.play_wave(wave_num, None)
     elif wave_list.active_waves[wave_num]:
+        print('deactivating')
         wave_list.deactive_wave_attempt(wave_num)
 
 def finger_is_closed(finger_landmark, target_landmark, tolerance):
     x0, y0, z0 = finger_landmark.x, finger_landmark.y, finger_landmark.z
     x1, y1, z1 = target_landmark.x, target_landmark.y, target_landmark.z
     z_average = abs((z0 + z1) / 2)
-    return distance(x0, y0, x1, y1) < (z_average**.8)*(tolerance*.5)
+    return distance(x0, y0, x1, y1) < (z_average**1.3)*(tolerance*1.8)
 
 def distance(x0, y0, x1, y1):
     return ((x1 - x0)**2 + (y1 - y0)**2)**.5
