@@ -5,7 +5,7 @@ import threading
 import numpy as np
 
 class Wave:
-    def __init__(self, wave_shape='sine', t=0, f=440.0, max_vol=1.0):
+    def __init__(self, wave_shape='sine', t=None, f=440.0, max_vol=1.0, mono=True):
         # DEBUGGING VARIABLES
         self.sample_count = 0
         self.last_sample = 0
@@ -15,20 +15,26 @@ class Wave:
         self.sample_rate = 44100
         note_multiple = 1.05946
         self.frequency_step = (note_multiple ** (1/30))
-        self.volume = 0
-        self.target_volume = max_vol
-        self.max_volume = max_vol
-        self.volume_step = .02
+
+        self.volume_left = 0
+        self.target_volume_left = max_vol
+        self.max_volume_left = max_vol
+        self.volume_right = 0
+        self.target_volume_right = max_vol
+        self.max_volume_right = max_vol
+        self.volume_step = .01
 
         self.output_bytes = None
         self.next_sample = 0
         self.wave_shape = CreateWaveShape.CreateWaveShape(wave_shape, self.sample_rate).array
 
+        channel_count = 1 if mono else 2
+        self.mono = mono
         self.playing = True
         self.p = pyaudio.PyAudio()
-        self.stream = self.p.open(format=pyaudio.paFloat32, channels=1, rate=self.sample_rate, output=True)
-        self.play(t=t)
+        self.stream = self.p.open(format=pyaudio.paFloat32, channels=channel_count, rate=self.sample_rate, output=True)
         self.thread = None
+        self.play(t=t)
 
     def get_next_chunk(self):
         samples_per_frequency = (len(self.wave_shape) - self.next_sample) // self.f
@@ -57,10 +63,16 @@ class Wave:
         #     print(self.f)
         #     print(self.last_sample, samples[0], samples[1])
         #     exit()
-
         self.last_sample = samples[-1]
 
-        self.output_bytes = (self.volume * samples).tobytes()
+        if self.mono:
+            self.output_bytes = (self.volume_left * samples).astype(np.float32).tobytes()
+        else:
+            left_channel = (self.volume_left * samples)
+            right_channel = (self.volume_right * samples)
+            interweaved_channels = np.ravel(np.column_stack((left_channel, right_channel))).astype(np.float32)
+
+            self.output_bytes = interweaved_channels.tobytes()
 
     def play_loop(self, t=0.0):
         start_time = time.time()
@@ -68,22 +80,26 @@ class Wave:
         while (infinite_flag or time.time() - start_time < t) and self.playing:
             self.play_chunk()
             self.slide_frequency()
-            self.slide_volume()
+            self.slide_volume('left')
+            self.slide_volume('right')
 
         # Fade out cleanly before exiting
-        self.target_volume = 0
-        while self.volume != self.target_volume:
+        while self.volume_left != self.target_volume_left and self.volume_right != self.target_volume_right:
             self.play_chunk()
-            self.slide_volume()
+            self.slide_volume(channel='left')
+            self.slide_volume(channel='right')
 
     def play(self, t=0):
-        self.target_volume = self.max_volume
+        self.target_volume_left = 0
+        self.target_volume_right = 0
         self.playing = False
         time.sleep(.04)
 
         self.playing = True
-        self.volume = 0
-        self.target_volume = self.max_volume
+        self.volume_left = 0
+        self.volume_right = 0
+        self.target_volume_left = self.max_volume_left
+        self.target_volume_right = self.max_volume_right
         self.next_sample = 0
         self.thread = threading.Thread(target=self.play_loop, kwargs={'t': t})
         self.thread.start()
@@ -93,7 +109,8 @@ class Wave:
         self.stream.write(self.output_bytes)
 
     def pause(self):
-        self.target_volume = 0
+        self.target_volume_left = 0
+        self.target_volume_right = 0
 
         # remove previous thread
         self.playing = False
@@ -118,26 +135,45 @@ class Wave:
         # if pitch change overcompensates, set f to the target
         if f_is_lower_flag != (self.f < self.target_f): self.f = self.target_f
 
-    def set_volume(self, volume):
-        self.max_volume = volume
-        self.target_volume = volume
+    def set_volume(self, volume, channel):
+        if self.mono or channel.lower() in ('left', 'mono'):
+            self.max_volume_left = volume
+            self.target_volume_left = volume
 
-    def set_direct_volume(self, volume):
-        self.volume = volume
-        self.target_volume = volume
-        if self.max_volume < volume: self.max_volume = volume
+        if self.mono or channel.lower() in ('right', 'mono'):
+            self.max_volume_right = volume
+            self.target_volume_right = volume
 
-    def slide_volume(self):
-        #print(self.volume)
-        if self.volume == self.target_volume: return
-        elif abs(self.volume - self.target_volume) < self.volume_step:
-            self.volume = self.target_volume
-            return
+    def set_direct_volume(self, volume, channel):
+        if self.mono or channel.lower() in ('left', 'mono'):
+            self.volume_left = volume
+            self.target_volume_left = volume
+            if self.max_volume_left < volume: self.max_volume_left = volume
 
-        if self.volume > self.target_volume:
-            self.volume -= self.volume_step
+        if self.mono or channel.lower() in ('right', 'mono'):
+            self.volume_right = volume
+            self.target_volume_right = volume
+            if self.max_volume_right < volume: self.max_volume_right = volume
+
+    def slide_volume(self, channel):
+        if channel == 'left':
+            volume = getattr(self, 'volume_left')
+            target_volume = getattr(self, 'target_volume_left')
         else:
-            self.volume += self.volume_step
+            volume = getattr(self, 'volume_right')
+            target_volume = getattr(self, 'target_volume_right')
+
+        if volume == target_volume: return
+        elif abs(volume - target_volume) < self.volume_step:
+            volume = target_volume
+
+        else:
+            if volume > target_volume:
+                volume -= self.volume_step
+            else:
+                volume += self.volume_step
+
+        setattr(self, 'volume_left', volume) if channel == 'left' else setattr(self, 'volume_right', volume)
 
     def set_wave_shape(self, shape):
         self.wave_shape = CreateWaveShape.CreateWaveShape(shape, self.sample_rate).array
@@ -151,22 +187,11 @@ class Wave:
 
 
 def main():
-    sinewave = Wave(t=None, f=300)
-    #sinewave2 = Wave(t=0, f=300.6)
-    sinewave.set_frequency(440)
-    #sinewave2.set_target_frequency(440)
-    time.sleep(2)
-    sinewave.set_volume(.5)
-    time.sleep(2)
+    sinewave = Wave(t=None, f=200, wave_shape='sine', max_vol=1, mono=False)
+    time.sleep(4)
     sinewave.pause()
-    time.sleep(1)
-    sinewave.play(4)
-    #sinewave2.play(4)
-    time.sleep(2)
-    sinewave.set_volume(1.0)
-    time.sleep(2)
+    time.sleep(4)
     sinewave.stop()
-    #sinewave2.stop()
 
 if __name__ == '__main__':
     main()

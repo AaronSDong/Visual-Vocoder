@@ -25,10 +25,10 @@ def camera():
     cap.set(cv.CAP_PROP_FPS, 30)
 
     mphands = mp.solutions.hands
-    hands = mphands.Hands(max_num_hands= 2, min_detection_confidence= 0.4, min_tracking_confidence= 0.6)
+    hands = mphands.Hands(max_num_hands=2, min_detection_confidence=0.4, min_tracking_confidence=0.6)
     mpdraw = mp.solutions.drawing_utils
 
-    wave_list = WaveGroup.WaveGroup(f_list=[100*(i+1) for i in range(8)])
+    wave_list = WaveGroup.WaveGroup(wave_shape='sine', mono=False)
 
     # Debugging
     prev_time = 0
@@ -80,35 +80,33 @@ def process_nodes(handLm, wave_list, handedness):
         tolerance = tolerance_map[i]
         if node_map[i] == 'palm': adjust_palm_values(handLm.landmark[0], wave_list, handedness)
         elif node_map[i] == 'thumb': adjust_octave(handLm, wave_list)
-        elif type(node_map[i]) == int: adjust_note(handLm.landmark[i], handLm.landmark[i-3], wave_list,
+        elif node_map[i] == 'note': adjust_note(handLm.landmark[i], handLm.landmark[i-3], wave_list,
                                                    wave_num, tolerance)
 
 def adjust_palm_values(palm_landmark, wave_list, handedness):
-    return
     wrist_l_y = palm_landmark.y
-    freq = round((1 - wrist_l_y) * 2000, 1)
+    vol = (1 - wrist_l_y) * 2
+    if vol > 1: vol = 1
 
-    wave_index = 0 if handedness.lower() == 'left' else 1  # placeholder for now
-    wave_list[wave_index].set_target_frequency(freq)
+    wave_list.set_vol_all(vol, channel=handedness)
 
 def adjust_octave(handLm, wave):
     pass
 
 def adjust_note(finger_landmark, target_landmark,wave_list, wave_num, tolerance):
-    if wave_list.active_waves[wave_num]: tolerance = tolerance[0], tolerance[1]*2  # increase range to turn off note
+    if wave_list.active_waves[wave_num]: tolerance[1] = tolerance[1]*tolerance[2]  # increase range to turn off note
+
     if finger_is_closed(finger_landmark, target_landmark, tolerance):
         if wave_list.active_waves[wave_num]:
             wave_list.active_waves[wave_num] = 3
             return
-        print('active')
         wave_list.play_wave(wave_num, None)
+
     elif wave_list.active_waves[wave_num]:
-        print('deactivating')
         wave_list.deactive_wave_attempt(wave_num)
 
 def finger_is_closed(finger_landmark, target_landmark, tolerance):
-    t0, t1 = tolerance
-    print(t0, t1)
+    t0, t1, _ = tolerance
     x0, y0, z0 = finger_landmark.x, finger_landmark.y, finger_landmark.z
     x1, y1, z1 = target_landmark.x, target_landmark.y, target_landmark.z
     z_average = round(abs((z0 + z1) / 2), 4)
@@ -130,20 +128,20 @@ def get_maps(handedness):
         **{i: None for i in range(21)},
         0: 'palm',
         4: 'thumb',
-        8: 100,
-        12: 200,
-        16: 300,
-        20: 400
+        8: 'note',
+        12: 'note',
+        16: 'note',
+        20: 'note'
     }
 
     right_nodes = {
         **{i: None for i in range(21)},
         0: 'palm',
         4: 'thumb',
-        8: 800,
-        12: 700,
-        16: 600,
-        20: 500
+        8: 'note',
+        12: 'note',
+        16: 'note',
+        20: 'note'
     }
 
     left_waves = {
@@ -164,10 +162,10 @@ def get_maps(handedness):
 
     tolerances = {
         **{i: None for i in range(21)},
-        8: (0.45, .34),  # index
-        12: (0.45, .38),  # middle
-        16: (0.5, .32),  # ring
-        20: (0.42, .24),  # pinky
+        8: [0.45, .34, 1.8],  # index
+        12: [0.45, .38, 2],  # middle
+        16: [0.5, .32, 2],  # ring
+        20: [0.42, .24, 1.5],  # pinky
     }
 
     if handedness == 'Left':

@@ -6,7 +6,7 @@ class CreateWaveShape:
                             (np.sin(2 * np.pi * np.arange(sample_rate) / sample_rate)).astype(np.float32),
 
                             'square':
-                            np.concatenate((-np.ones(sample_rate//2), np.ones(sample_rate//2))),
+                            np.concatenate((np.ones(sample_rate//2), -np.ones(sample_rate//2))),
 
                             # Noisy for some reason, check later
                             'triangle':
