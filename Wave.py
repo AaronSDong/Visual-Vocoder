@@ -83,7 +83,6 @@ class Wave:
             self.slide_volume('left')
             self.slide_volume('right')
 
-        # Fade out cleanly before exiting
         while self.volume_left != self.target_volume_left and self.volume_right != self.target_volume_right:
             self.play_chunk()
             self.slide_volume(channel='left')
