@@ -27,7 +27,7 @@ def camera():
                           static_image_mode=False)
     mpdraw = mp.solutions.drawing_utils
 
-    wave_list = WaveGroup.WaveGroup(wave_shape='sine', mono=False, scale='major', key='F')
+    wave_list = WaveGroup.WaveGroup(wave_shape='sine', mono=False, scale='major', key='F', max_vol=0)
 
     # Debugging
     prev_time = 0

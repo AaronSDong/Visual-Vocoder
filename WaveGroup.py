@@ -2,7 +2,7 @@ import Wave
 import numpy as np
 
 class WaveGroup:
-    def __init__(self, f_list=None, wave_shape='sine', mono=True, octave=2, key='C', scale='major'):
+    def __init__(self, f_list=None, wave_shape='sine', mono=True, octave=2, key='C', scale='major', max_vol=1):
         self.octave_set_buffer = [octave, 3]  # first value is attempted octave, second is frames to buffer
 
         self.octave_shift = octave
@@ -19,7 +19,7 @@ class WaveGroup:
         self.wave_list = []
 
         for freq in self.f_list:
-            self.wave_list.append(Wave.Wave(wave_shape, t=0, f=freq, mono=mono))
+            self.wave_list.append(Wave.Wave(wave_shape, t=0, f=freq, mono=mono, max_vol=max_vol))
 
     def play_wave(self, wave_num, t):
         self.wave_list[wave_num].play(t=t)
