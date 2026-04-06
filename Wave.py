@@ -88,7 +88,7 @@ class Wave:
             self.slide_volume(channel='left')
             self.slide_volume(channel='right')
 
-    def play(self, t=0):
+    def play(self, t=None):
         self.target_volume_left = 0
         self.target_volume_right = 0
         self.playing = False
@@ -186,11 +186,32 @@ class Wave:
 
 
 def main():
-    sinewave = Wave(t=None, f=200, wave_shape='sine', max_vol=1, mono=False)
-    time.sleep(4)
-    sinewave.pause()
-    time.sleep(4)
-    sinewave.stop()
+    freq_list = [434, 444]
+    wave5 = Wave(f=434, wave_shape='sine', t=0, max_vol=1)  # vol is dry/wet
+    wave1 = Wave(f=440, wave_shape='sine')
+    wave3 = Wave(f=444, wave_shape='sine', t=0, max_vol=1)
+    wave_list = [wave3, wave5]
+    time.sleep(2)
+    for w in wave_list:
+        time.sleep(0.2)  # delay
+        w.play()
+    time.sleep(5)
+    start_time = time.time()
+    for _ in range(100):
+        for i in range(len(wave_list)):
+            print(time.time()-start_time)
+            w = wave_list[i]
+            f = freq_list[i]
+            f += (f-440)//2  # depth
+            w.set_frequency(f)
+        time.sleep(.15)  # speed (also change how fast freq step)
+        for i in range(len(wave_list)):
+            w = wave_list[i]
+            f = freq_list[i]
+            f -= (f-440)//4
+            w.set_frequency(f)
+        time.sleep(.15)
+
 
 if __name__ == '__main__':
     main()
