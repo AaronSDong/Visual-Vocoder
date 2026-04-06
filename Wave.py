@@ -7,34 +7,34 @@ import numpy as np
 class Wave:
     def __init__(self, wave_shape='sine', t=None, f=440.0, max_vol=1.0, mono=True):
         # DEBUGGING VARIABLES
-        self.sample_count = 0
-        self.last_sample = 0
-
-        self.f = f
-        self.target_f = f
-        self.sample_rate = 44100
-        note_multiple = 1.05946
-        self.frequency_step = (note_multiple ** (1/30))
-
-        self.volume_left = 0
-        self.target_volume_left = max_vol
-        self.max_volume_left = max_vol
-        self.volume_right = 0
-        self.target_volume_right = max_vol
-        self.max_volume_right = max_vol
-        self.volume_step = .01
-
-        self.output_bytes = None
-        self.next_sample = 0
-        self.wave_shape = CreateWaveShape.CreateWaveShape(wave_shape, self.sample_rate).array
-
-        channel_count = 1 if mono else 2
-        self.mono = mono
-        self.playing = True
-        self.p = pyaudio.PyAudio()
-        self.stream = self.p.open(format=pyaudio.paFloat32, channels=channel_count, rate=self.sample_rate, output=True)
-        self.thread = None
-        self.play(t=t)
+        # self.sample_count = 0
+        # self.last_sample = 0
+        #
+        # self.f = f
+        # self.target_f = f
+        # self.sample_rate = 44100
+        # note_multiple = 1.05946
+        # self.frequency_step = (note_multiple ** (1/30))
+        #
+        # self.volume_left = 0
+        # self.target_volume_left = max_vol
+        # self.max_volume_left = max_vol
+        # self.volume_right = 0
+        # self.target_volume_right = max_vol
+        # self.max_volume_right = max_vol
+        # self.volume_step = .01
+        #
+        # self.output_bytes = None
+        # self.next_sample = 0
+        # self.wave_shape = CreateWaveShape.CreateWaveShape(wave_shape, self.sample_rate).array
+        #
+        # channel_count = 1 if mono else 2
+        # self.mono = mono
+        # self.playing = True
+        # self.p = pyaudio.PyAudio()
+        # self.stream = self.p.open(format=pyaudio.paFloat32, channels=channel_count, rate=self.sample_rate, output=True)
+        # self.thread = None
+        # self.play(t=t)
 
     def get_next_chunk(self):
         samples_per_frequency = (len(self.wave_shape) - self.next_sample) // self.f
