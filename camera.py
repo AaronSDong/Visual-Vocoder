@@ -52,7 +52,7 @@ def camera():
 
 def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
     result = hands.process(frame)
-    octave = 0
+    octave = 2  # edit
     if not result.multi_hand_landmarks: return
 
     for i in range(len(result.multi_hand_landmarks)):
@@ -134,7 +134,7 @@ def adjust_octave(finger_landmark, target_landmark, wave_list, handedness):  # b
         tolerance[1] = tolerance[1] * tolerance[2]
 
     if finger_is_closed(finger_landmark, target_landmark, tolerance):
-        print('on')
+        return 0 # edit later
         return hand_binary_value
     else:
         return 0
@@ -180,7 +180,7 @@ def get_maps(handedness):
     tolerances = {
         **{i: None for i in range(21)},
         4:  [0.5, .5, 1.2],  # thumb
-        8:  [0.40, .42, 1.4],  # index
+        8:  [0.38, .40, 1.7],  # index
         12: [0.45, .50, 1.5],  # middle
         16: [0.50, .34, 1.6],  # ring
         20: [0.45, .30, 1.5],  # pinky
