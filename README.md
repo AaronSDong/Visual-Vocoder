@@ -9,3 +9,4 @@ The following is a list of things that I did not do/received significant help fr
 - Many 'busy work' dictionaries were created by AI (scales and note values are often information that is hard/tedious to 
 calculate, or at worst are arbitrarily determined and require online resources regardless)
 - Suppressing error messages from outdated modules (AI)
+- Occasional refactoring edits (AI)

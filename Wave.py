@@ -4,14 +4,15 @@ import pyaudio
 import threading
 import numpy as np
 import random
+import ChorusSettings
 
 class Wave:
-    def __init__(self, chorus=None, wave_shape='sine', t=None, f=440.0, max_vol=1.0, mono=True):
+    def __init__(self, chorus=ChorusSettings.ChorusSettings(bypass=True),
+                 wave_shape='sine', t=None,f=440.0, max_vol=1.0, mono=True):
         self.t = t
         self.f = f
         self.wave_shape = wave_shape
         self.mono = mono
-        self.chorus_dry_wet = chorus['dry_wet']  # in ratio from 0.0-1.0
         self.max_vol_left = max_vol
         self.max_vol_right = max_vol
         self.sample_rate = 44100
@@ -24,23 +25,18 @@ class Wave:
         self.stream = self.p.open(format=pyaudio.paFloat32, channels=channel_count, rate=self.sample_rate, output=True)
         self.thread = None
 
-        if chorus is None: chorus = {'bypass': True}
-        self.chorus_bypass = chorus['bypass']
-        self.chorus_delay = 0.0
-        self.chorus_speed = 0.0
-        self.chorus_frequency_depth = 0.0
-        self.chorus_voice_separation = 0.0
-        self.__init__create_chorus_waves(chorus)
+        self.chorus = chorus
+        self.__init__create_chorus_waves()
 
         self.play(t=t)
 
-    def __init__create_chorus_waves(self, chorus):
-        if chorus['bypass']: return
+    def __init__create_chorus_waves(self):
+        if self.chorus.bypass: return
+        self.chorus.calculate_voice_separation(self.f)
 
-        self.update_chorus_variables(chorus)
         self.lower_chorus_voice = {
-            'initial_f': self.f - self.chorus_voice_separation,
-            'target_f': self.f - self.chorus_voice_separation -
+            'initial_f': self.f - self.chorus.voice_separation,
+            'target_f': self.f - self.chorus.voice_separation + -
                         (self.chorus_frequency_depth*random.uniform(0.9, 1.1)),
             'decrease_f': True,
             'max_vol': self.max_vol_right
@@ -60,13 +56,6 @@ class Wave:
                                                                 f=self.upper_chorus_voice['initial_f'],
                                                                 max_vol=self.upper_chorus_voice['max_vol'])
         self.upper_chorus_voice['signal'].set_frequency(self.upper_chorus_voice['target_f'])
-
-    def update_chorus_variables(self, chorus):
-        self.chorus_delay = chorus['delay'] / 1000  # in secs
-        self.chorus_speed = 1 / chorus['speed']  # Hz to sec
-        self.chorus_frequency_depth = chorus['depth'] / 1000  # in secs
-        new_voice_location = 1 / ((1 / self.f) - (self.chorus_delay / (2*self.chorus_speed*self.f)))
-        self.chorus_voice_separation = abs(new_voice_location - self.f)
 
     def play_loop(self, t=0.0):
         start_time = time.time()
@@ -175,13 +164,7 @@ class Wave:
 
 def main():
 
-    chorus = {
-        'bypass': False,
-        'delay': 50,
-        'depth': 50,
-        'speed': .5,
-        'dry_wet': 1
-    }
+    chorus = ChorusSettings.ChorusSettings(bypass=False)
     wave = Wave(chorus, wave_shape='triangle', max_vol=1)
     # wave2 = Wave(chorus, wave_shape='triangle', max_vol=.5, f=445)
     # wave3 = Wave(chorus, wave_shape='triangle', max_vol=.5, f=450)
