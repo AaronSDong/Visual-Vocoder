@@ -70,8 +70,7 @@ class Wave:
 
         self.dry_signal.set_volume(0, channel='mono')
         while self.dry_signal.volume_left != 0 and self.dry_signal.volume_right != 0:
-            self.dry_signal.set_volume(0, channel='left')
-            self.dry_signal.set_volume(0, channel='right')
+            self.dry_signal.set_volume(0, channel='mono')
             sample = self.dry_signal.receive_chunk()
             # Chorus effect here
             output_bytes = sample.tobytes()
@@ -83,8 +82,7 @@ class Wave:
             self.thread.join()
 
         self.playing = True
-        self.dry_signal.set_volume(self.max_vol_left, channel='left')
-        self.dry_signal.set_volume(self.max_vol_right, channel='right')
+        self.dry_signal.set_volume(self.max_vol_left, channel='mono')
         self.thread = threading.Thread(target=self.play_loop, kwargs={'t': t})
         self.thread.start()
 
@@ -176,12 +174,10 @@ class Wave:
     def pause(self):
         self.max_vol_left  = 0
         self.max_vol_right = 0
-        self.dry_signal.set_volume(0, channel= 'left')
-        self.dry_signal.set_volume(0, channel='right')
+        self.dry_signal.set_volume(0, channel= 'mono')
         if not self.chorus.bypass:
-            for signal in (self.lower_chorus['signal'], self.upper_chorus['signal']):
-                signal.set_volume(0, channel= 'left')
-                signal.set_volume(0, channel='right')
+            self.lower_chorus['signal'].set_volume(0, channel='mono')
+            self.upper_chorus['signal'].set_volume(0, channel='mono')
 
         # remove previous thread
         self.playing = False
@@ -196,7 +192,7 @@ class Wave:
         self.p.terminate()
 
 def main():
-    chorus = ChorusSettings.ChorusSettings(bypass=False, depth=10, speed=2)
+    chorus = ChorusSettings.ChorusSettings(bypass=False, depth=1, speed=.3, delay=40)
     wave = Wave(chorus, wave_shape='triangle', max_vol=1)
     # time.sleep(1)
     # chorus = ChorusSettings.ChorusSettings(bypass=False, depth=0, delay=0)

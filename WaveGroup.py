@@ -64,6 +64,7 @@ class WaveGroup:
         for wave in self.wave_list:
             wave.stop()
 
+    # dictionaries below here were created by AI
     @staticmethod
     def get_key_index(key):
         # Index relative to C (going up)

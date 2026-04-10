@@ -8,6 +8,10 @@ class ChorusSettings:
         Depth (ms):  1.0-30.0
         Speed (Hz):  0.1-2.0
         Dry Wet:     0.0-1.0
+
+        It is worth noting that small differences in ALL chorus effects are generally subtle.
+        In order to really see if a feature is working the best method would be to test the max and mins of the plugin,
+        or simply print out chorus frequency outputs to see the difference.
         """
         self.bypass = bypass
         self.delay_ms = delay

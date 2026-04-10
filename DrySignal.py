@@ -178,7 +178,7 @@ class DrySignal:
 
     def __init__slide_volume(self, channel):
         if channel == 'left':
-            volume = getattr(self, 'volume_left')
+            volume = getattr(self, 'volume_left')  # getattr idea taken from AI
             target_volume = getattr(self, 'target_volume_left')
         else:
             volume = getattr(self, 'volume_right')

@@ -4,9 +4,10 @@ import mediapipe as mp
 import WaveGroup
 
 import warnings
-warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')
+warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')  # AI
 
 def calculate_fps(prev_time, frame):
+    # All of this function is AI
     current_time = time.time()
     fps = 1 / (current_time - prev_time)
     prev_time = current_time
@@ -17,12 +18,12 @@ def calculate_fps(prev_time, frame):
 
 def camera():
     mirrored_camera = True
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(0)  # this is documentation
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 300)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 360)
     cap.set(cv.CAP_PROP_FPS, 30)
 
-    mphands = mp.solutions.hands
+    mphands = mp.solutions.hands  # this chunk is taken from documentation (mostly)
     hands = mphands.Hands(max_num_hands=2, min_detection_confidence=0.4, min_tracking_confidence=0.6,
                           static_image_mode=False)
     mpdraw = mp.solutions.drawing_utils
@@ -34,7 +35,7 @@ def camera():
 
     while True:
         global frame  # get rid of later
-        _, frame = cap.read()
+        _, frame = cap.read()  # documentation
 
         if mirrored_camera: frame = cv.flip(frame, 1)
         prev_time = calculate_fps(prev_time, frame)
@@ -42,10 +43,10 @@ def camera():
         # frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)  # Grey Scale
 
         cv.imshow('frame', frame)
-        if cv.waitKey(1) == ord('q'):  # Exit key
+        if cv.waitKey(1) == ord('q'):  # Exit key, AI
             break
 
-    # When everything done, release the capture
+    # When everything done, release the capture (AI)
     cap.release()
     cv.destroyAllWindows()
     wave_list.stop_all()
@@ -68,6 +69,7 @@ def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
         process_nodes(handLm, wave_list, handedness)
         octave += adjust_octave(handLm.landmark[4], handLm.landmark[5], wave_list, handedness)
 
+        # Documentation
         mpdraw.draw_landmarks(frame, handLm, mphands.HAND_CONNECTIONS,
                               mpdraw.DrawingSpec(color=(255, 255, 255), circle_radius=3,
                                                  thickness=cv.FILLED),
@@ -141,6 +143,7 @@ def adjust_octave(finger_landmark, target_landmark, wave_list, handedness):  # b
 
 def get_maps(handedness):
     # Nodes values represent the type of value they store, or if a float, their note frequency
+    # Idea to initialize lists as None and unpacking key-value pairs was taken from AI
     left_nodes = {
         **{i: None for i in range(21)},
         0: 'palm',
