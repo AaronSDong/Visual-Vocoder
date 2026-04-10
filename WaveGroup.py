@@ -19,7 +19,7 @@ class WaveGroup:
         self.wave_list = []
 
         for freq in self.f_list:
-            self.wave_list.append(Wave.Wave(wave_shape, t=0, f=freq, mono=mono, max_vol=max_vol))
+            self.wave_list.append(Wave.Wave(wave_shape=wave_shape, t=0, f=freq, mono=mono, max_vol=max_vol))
 
     def play_wave(self, wave_num, t):
         self.wave_list[wave_num].play(t=t)

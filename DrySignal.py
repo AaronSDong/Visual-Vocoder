@@ -3,16 +3,19 @@ import CreateWaveShape
 import numpy as np
 
 class DrySignal:
-    def __init__(self, wave_shape='sine', f=440.0, max_vol=1.0, mono=True):
+    def __init__(self, wave_shape='sine', f=440.0, max_vol=1.0, mono=True, frequency_step=None):
         # DEBUGGING VARIABLES
         self.sample_count = 0
         self.last_sample = 0
 
+        self.sample_rate = 44100
         self.f = f
         self.target_f = f
-        self.sample_rate = 44100
-        note_multiple = 1.05946
-        self.frequency_step = (note_multiple ** (1/30))
+        self.frequency_step_linear = False
+        self.frequency_step = frequency_step
+        if frequency_step is None:
+            note_multiple = 1.05946
+            self.frequency_step = (note_multiple ** (1/30))
 
         self.volume_left = 0
         self.target_volume_left = max_vol
@@ -76,10 +79,8 @@ class DrySignal:
     def get_next_sample(self):
         next_sample_value = self.wave_shape[int(self.next_sample)]
         self.next_sample += self.f
-        print(self.next_sample)
         if self.next_sample >= self.sample_rate:
             self.next_sample = self.f + self.next_sample - self.sample_rate
-            print('e')
         return np.array([next_sample_value])
 
     # def play_loop(self, t=0.0):
@@ -127,8 +128,10 @@ class DrySignal:
     #     self.playing = False
     #     time.sleep(.04)
 
-    def set_frequency(self, frequency):
+    def set_frequency(self, frequency, linear=False, frequency_step=None):
         self.target_f = frequency
+        self.frequency_step_linear = linear
+        if frequency_step is not None: self.frequency_step = frequency_step
 
     def set_direct_frequency(self, frequency):
         self.f = frequency
@@ -136,12 +139,19 @@ class DrySignal:
 
     def __init__slide_frequency(self):
         if self.f == self.target_f: return
-
         f_is_lower_flag = self.f < self.target_f
+
+        # Change frequency based on very funny and not poorly coded tree
         if self.f > self.target_f:
-            self.f /= self.frequency_step
+            if self.frequency_step_linear:
+                self.f -= self.frequency_step
+            else:
+                self.f /= self.frequency_step
         else:
-            self.f *= self.frequency_step
+            if self.frequency_step_linear:
+                self.f += self.frequency_step
+            else:
+                self.f *= self.frequency_step
 
         # if pitch change overcompensates, set f to the target
         if f_is_lower_flag != (self.f < self.target_f): self.f = self.target_f
