@@ -1,6 +1,6 @@
 import time
-import CreateWaveShape
 import numpy as np
+from CreateWaveShape import CreateWaveShape
 
 class DrySignal:
     def __init__(self, wave_shape='sine', f=440.0, max_vol=1.0, mono=True, frequency_step=None):
@@ -17,6 +17,7 @@ class DrySignal:
             note_multiple = 1.05946
             self.frequency_step = (note_multiple ** (1/30))
 
+        self.mono = mono
         self.volume_left = 0
         self.target_volume_left = max_vol
         self.max_volume_left = max_vol
@@ -27,17 +28,11 @@ class DrySignal:
 
         self.output_bytes = None
         self.next_sample = 0
-        self.wave_shape = CreateWaveShape.CreateWaveShape(wave_shape, self.sample_rate).array
+        self.wave_shape = CreateWaveShape(wave_shape, self.sample_rate).array
 
-        # channel_count = 1 if mono else 2
-        self.mono = mono
         self.playing = True
-        # self.p = pyaudio.PyAudio()
-        # self.stream = self.p.open(format=pyaudio.paFloat32, channels=channel_count, rate=self.sample_rate, output=True)
-        # self.thread = None
-        # self.play(t=t)
 
-    def __init__get_next_chunk(self):
+    def _internal_get_next_chunk(self):
         samples_per_frequency = (len(self.wave_shape) - self.next_sample) // self.f
 
         if int((len(self.wave_shape) - self.next_sample) % self.f) != 0:
@@ -68,13 +63,11 @@ class DrySignal:
 
         if self.mono:
             return (self.volume_left * samples).astype(np.float32)
-            # self.output_bytes = (self.volume_left * samples).astype(np.float32).tobytes()
         else:
             left_channel = (self.volume_left * samples)
             right_channel = (self.volume_right * samples)
             interweaved_channels = np.ravel(np.column_stack((left_channel, right_channel))).astype(np.float32)
             return interweaved_channels
-            # self.output_bytes = interweaved_channels.tobytes()
 
     def get_next_sample(self):
         next_sample_value = self.wave_shape[int(self.next_sample)]
@@ -83,50 +76,12 @@ class DrySignal:
             self.next_sample = self.f + self.next_sample - self.sample_rate
         return np.array([next_sample_value])
 
-    # def play_loop(self, t=0.0):
-    #     start_time = time.time()
-    #     infinite_flag = True if t is None else False
-    #     while (infinite_flag or time.time() - start_time < t) and self.playing:
-    #         self.play_chunk()
-    #         self.slide_frequency()
-    #         self.slide_volume('left')
-    #         self.slide_volume('right')
-    #
-    #     while self.volume_left != self.target_volume_left and self.volume_right != self.target_volume_right:
-    #         self.play_chunk()
-    #         self.slide_volume(channel='left')
-    #         self.slide_volume(channel='right')
-    #
-    # def play(self, t=None):
-    #     self.target_volume_left = 0
-    #     self.target_volume_right = 0
-    #     self.playing = False
-    #     time.sleep(.04)
-    #
-    #     self.playing = True
-    #     self.volume_left = 0
-    #     self.volume_right = 0
-    #     self.target_volume_left = self.max_volume_left
-    #     self.target_volume_right = self.max_volume_right
-    #     self.next_sample = 0
-    #     self.thread = threading.Thread(target=self.play_loop, kwargs={'t': t})
-    #     self.thread.start()
-
     def receive_chunk(self):
-        samples = self.__init__get_next_chunk()
-        self.__init__slide_frequency()
-        self.__init__slide_volume('left')
-        self.__init__slide_volume('right')
+        samples = self._internal_get_next_chunk()
+        self._internal_slide_frequency()
+        self._internal_slide_volume('left')
+        self._internal_slide_volume('right')
         return samples
-        # self.stream.write(self.output_bytes)
-
-    # def pause(self):
-    #     self.target_volume_left = 0
-    #     self.target_volume_right = 0
-    #
-    #     # remove previous thread
-    #     self.playing = False
-    #     time.sleep(.04)
 
     def set_frequency(self, frequency, linear=False, frequency_step=None):
         self.target_f = frequency
@@ -137,11 +92,11 @@ class DrySignal:
         self.f = frequency
         self.target_f = frequency
 
-    def __init__slide_frequency(self):
+    def _internal_slide_frequency(self):
         if self.f == self.target_f: return
         f_is_lower_flag = self.f < self.target_f
 
-        # Change frequency based on very funny and not poorly coded tree
+        # Tree to change frequency
         if self.f > self.target_f:
             if self.frequency_step_linear:
                 self.f -= self.frequency_step
@@ -176,7 +131,7 @@ class DrySignal:
             self.target_volume_right = volume
             if self.max_volume_right < volume: self.max_volume_right = volume
 
-    def __init__slide_volume(self, channel):
+    def _internal_slide_volume(self, channel):
         if channel == 'left':
             volume = getattr(self, 'volume_left')  # getattr idea taken from AI
             target_volume = getattr(self, 'target_volume_left')
@@ -197,15 +152,7 @@ class DrySignal:
         setattr(self, 'volume_left', volume) if channel == 'left' else setattr(self, 'volume_right', volume)
 
     def set_wave_shape(self, shape):
-        self.wave_shape = CreateWaveShape.CreateWaveShape(shape, self.sample_rate).array
-
-    # def stop(self):
-    #     self.playing = False
-    #     self.thread.join()
-    #     self.stream.stop_stream()
-    #     self.stream.close()
-    #     self.p.terminate()
-
+        self.wave_shape = CreateWaveShape(shape, self.sample_rate).array
 
 def main():
     freq_list = [434, 444]

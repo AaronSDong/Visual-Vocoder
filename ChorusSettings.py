@@ -12,6 +12,14 @@ class ChorusSettings:
         It is worth noting that small differences in ALL chorus effects are generally subtle.
         In order to really see if a feature is working the best method would be to test the max and mins of the plugin,
         or simply print out chorus frequency outputs to see the difference.
+
+        To get an indepth view on what each setting does, please look up 'chorus effect.' Here is a very quick overview:
+        A chorus effect creates multiple signals (this effect uses two signals) to create the 'chorus sound.'
+        The bypass is an on/off switch for the effect.
+        Delay simulates repeating the wave at a very short delay.
+        Depth simulates modulating this delay at a certain range.
+        Speed simulates how fast the modulation is.
+        Dry/Wet is the ratio to how much dry signal (not chorus) to wet (chorus), with 0 being no chorus at all.
         """
         self.bypass = bypass
         self.delay_ms = delay
@@ -29,5 +37,6 @@ class ChorusSettings:
         self.speed_sec = 1 / self.speed_hz
 
     def convert_sec_to_f(self, factor_to_convert, f):
+        # Weird formula to convert ms delay to a frequency
         new_voice_f = 1 / ((1 / f) - (factor_to_convert / (2*self.speed_sec*f)))
         return abs(new_voice_f - f)

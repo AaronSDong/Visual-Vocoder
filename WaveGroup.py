@@ -1,9 +1,13 @@
 import Wave
 import numpy as np
+from ChorusSettings import ChorusSettings
 
 class WaveGroup:
-    def __init__(self, f_list=None, wave_shape='sine', mono=True, octave=2, key='C', scale='major', max_vol=1):
+    def __init__(self, f_list=None, wave_shape='sine', mono=True, octave=2, key='C', scale='major', max_vol=1,
+                 chorus=ChorusSettings()):
         self.octave_set_buffer = [octave, 3]  # first value is attempted octave, second is frames to buffer
+        self.chorus_hand = 'left'
+        self.chorus_bypass = False
 
         self.octave_shift = octave
         self.octave_multiplier = (octave + 2) - 4  # Translate octave where the 2nd octave is equal to C4
@@ -19,7 +23,8 @@ class WaveGroup:
         self.wave_list = []
 
         for freq in self.f_list:
-            self.wave_list.append(Wave.Wave(wave_shape=wave_shape, t=0, f=freq, mono=mono, max_vol=max_vol))
+            self.wave_list.append(Wave.Wave(wave_shape=wave_shape, t=0, f=freq, mono=mono, max_vol=max_vol,
+                                            chorus=chorus))
 
     def play_wave(self, wave_num, t):
         self.wave_list[wave_num].play(t=t)
@@ -55,6 +60,10 @@ class WaveGroup:
         self.octave_multiplier = (octave + 2) - 4
         self.f_list = self.f_list * (2**octave_shift)
         self.shift_freq()
+
+    def update_chorus(self, chorus):
+        for wave in self.wave_list:
+            wave.update_chorus_settings(chorus)
 
     def shift_freq(self):
         for i, freq in enumerate(self.f_list):
