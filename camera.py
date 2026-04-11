@@ -20,7 +20,7 @@ def calculate_fps(prev_time, frame):
 
 def camera():
     mirrored_camera = True
-    cap = cv.VideoCapture(0)  # this is documentation
+    cap = cv.VideoCapture(0)  # this is from documentation
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 300)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 360)
     cap.set(cv.CAP_PROP_FPS, 30)
@@ -55,7 +55,7 @@ def camera():
 
 def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
     result = hands.process(frame)
-    octave = 2  # edit
+    octave = 0
     if not result.multi_hand_landmarks: return
 
     for i in range(len(result.multi_hand_landmarks)):
@@ -69,7 +69,10 @@ def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
 
         handLm = result.multi_hand_landmarks[i]
         process_nodes(frame, handLm, wave_list, handedness)
+        global e
+        e = 4
         octave += adjust_octave(frame, handLm.landmark[4], handLm.landmark[5], wave_list, handedness)
+        e = 5
 
         # Documentation
         mpdraw.draw_landmarks(frame, handLm, mphands.HAND_CONNECTIONS,
@@ -82,6 +85,8 @@ def process_nodes(frame, handLm, wave_list, handedness):
     node_map, wave_map, tolerance_map = get_maps(handedness)
 
     for i in range(len(handLm.landmark)):
+        global e
+        e = i
         wave_num = wave_map[i]
         tolerance = tolerance_map[i]
 
@@ -102,21 +107,21 @@ def adjust_palm_values(palm_landmark, wave_list, handedness):
         max_speed = .4
         max_dry_wet = .5
 
-        multiplier = abs(palm_landmark.x -.5) * 2
-        # normalize the values to fit in what would have been .4-1.0
-        threshold = .4
-        if multiplier <= threshold:
+        distance_from_middle = abs(palm_landmark.x -.5) * 2
+        # normalize the values to fit in what would have been .3-.8
+        min_threshold = .3
+        max_threshold = .8
+        threshold_range = max_threshold - min_threshold
+        if distance_from_middle <= min_threshold:
             multiplier = 0
             max_speed = 1  # prevent crashing
             bypass = True
+        elif distance_from_middle >= max_threshold:
+            multiplier = 1
         else:
-            multiplier = (multiplier - threshold) / (1 - threshold)
+            multiplier = (distance_from_middle - min_threshold) / (1 - threshold_range)
             max_speed *= multiplier
-        '''
-        print(f'delay: {(max_delay * multiplier):.2f}, '
-              f'depth: {(max_depth * multiplier):.2f}, '
-              f'speed: {(max_speed * multiplier):.2f}, '
-              f'dry_wet: {(max_dry_wet * multiplier):.2f}')'''
+
         chorus = ChorusSettings(bypass=bypass, delay=max_delay*multiplier, depth=max_depth*multiplier,
                                 speed=max_speed, dry_wet=max_dry_wet*multiplier)
         wave_list.update_chorus(chorus)
@@ -132,7 +137,7 @@ def adjust_note(frame, finger_landmark, target_landmark,wave_list, wave_num, tol
         wave_list.play_wave(wave_num, None)
 
     elif wave_list.active_waves[wave_num]:
-        wave_list.deactive_wave_attempt(wave_num)
+        wave_list.deactivate_wave_attempt(wave_num)
 
 def finger_is_closed(frame, finger_landmark, target_landmark, tolerance):
     t0, t1, _ = tolerance
@@ -140,12 +145,30 @@ def finger_is_closed(frame, finger_landmark, target_landmark, tolerance):
     x1, y1, z1 = target_landmark.x, target_landmark.y, target_landmark.z
     z_average = round(abs((z0 + z1) / 2), 4)
 
-    # Debugging (taken from AI)
+    # Partially taken from AI
     h, w, _ = frame.shape
     cx, cy = int(x0*w), int(y0*h)
     radius = int((z_average**t0) * t1 * min(w, h))
+    if e == 4:
+        print(radius)
+        print(distance(x0, y0, x1, y1) * min(w, h))
     cv.circle(frame, (cx, cy), radius, (255, 0, 0), 2)
 
+    # Somewhat arbitrary formula, t0 accounts for distance while t1 is the allotted distance
+    return distance(x0, y0, x1, y1) * min(w, h) < (z_average**t0) * t1 * min(w, h)
+
+def thumb_is_closed(frame, finger_landmark, target_landmark, tolerance):
+    t0, t1, _ = tolerance
+    x0, y0, z0 = finger_landmark.x, finger_landmark.y, finger_landmark.z
+    x1, z1 = target_landmark.x, target_landmark.z
+    z_average = round(abs((z0 + z1) / 2), 4)
+
+    h, w, _ = frame.shape
+    cx = int(x0*w)
+    radius = int((z_average**t0) * t1 * min(w, h))
+    cv.circle(frame, (cx, cy), radius, (255, 0, 0), 2)
+
+    # Somewhat arbitrary formula, t0 accounts for distance while t1 is the allotted distance
     return distance(x0, y0, x1, y1) < (z_average**t0)*t1
 
 def distance(x0, y0, x1, y1):
@@ -163,7 +186,6 @@ def adjust_octave(frame, finger_landmark, target_landmark, wave_list, handedness
         tolerance[1] = tolerance[1] * tolerance[2]
 
     if finger_is_closed(frame, finger_landmark, target_landmark, tolerance):
-        return 0 # edit later
         return hand_binary_value
     else:
         return 0
@@ -209,7 +231,7 @@ def get_maps(handedness):
 
     tolerances = {
         **{i: None for i in range(21)},
-        4:  [0.5, .5, 1.2],  # thumb
+        4:  [0.3, .3, 1.2],  # thumb
         8:  [0.38, .40, 1.7],  # index
         12: [0.40, .50, 1.5],  # middle
         16: [0.45, .34, 1.6],  # ring

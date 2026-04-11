@@ -74,7 +74,7 @@ class DrySignal:
         self.next_sample += self.f
         if self.next_sample >= self.sample_rate:
             self.next_sample = self.f + self.next_sample - self.sample_rate
-        return np.array([next_sample_value])
+        return np.array([next_sample_value * self.volume_left])
 
     def receive_chunk(self):
         samples = self._internal_get_next_chunk()

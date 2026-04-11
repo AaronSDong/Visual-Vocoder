@@ -30,7 +30,7 @@ class WaveGroup:
         self.wave_list[wave_num].play(t=t)
         self.active_waves[wave_num] = 3
 
-    def deactive_wave_attempt(self, wave_num):
+    def deactivate_wave_attempt(self, wave_num):
         self.active_waves[wave_num] -= 1
         if self.active_waves[wave_num] == 0:
             self.wave_list[wave_num].pause()
