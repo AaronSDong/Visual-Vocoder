@@ -2,11 +2,14 @@ import cv2 as cv
 import time
 import mediapipe as mp
 import WaveGroup
+from ChorusSettings import ChorusSettings
 
 import warnings
-warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')
+
+warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')  # AI
 
 def calculate_fps(prev_time, frame):
+    # All of this function is AI
     current_time = time.time()
     fps = 1 / (current_time - prev_time)
     prev_time = current_time
@@ -17,24 +20,24 @@ def calculate_fps(prev_time, frame):
 
 def camera():
     mirrored_camera = True
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(0)  # this is documentation
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 300)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 360)
     cap.set(cv.CAP_PROP_FPS, 30)
 
-    mphands = mp.solutions.hands
+    mphands = mp.solutions.hands  # this chunk is taken from documentation (mostly)
     hands = mphands.Hands(max_num_hands=2, min_detection_confidence=0.4, min_tracking_confidence=0.6,
                           static_image_mode=False)
     mpdraw = mp.solutions.drawing_utils
 
-    wave_list = WaveGroup.WaveGroup(wave_shape='sine', mono=False, scale='major', key='F', max_vol=0)
+    chorus = ChorusSettings(bypass=False)  # take settings from a save file later
+    wave_list = WaveGroup.WaveGroup(wave_shape='triangle', mono=True, scale='major', key='F', max_vol=0, chorus=chorus)
 
     # Debugging
     prev_time = 0
 
     while True:
-        global frame  # get rid of later
-        _, frame = cap.read()
+        _, frame = cap.read()  # documentation
 
         if mirrored_camera: frame = cv.flip(frame, 1)
         prev_time = calculate_fps(prev_time, frame)
@@ -42,17 +45,17 @@ def camera():
         # frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)  # Grey Scale
 
         cv.imshow('frame', frame)
-        if cv.waitKey(1) == ord('q'):  # Exit key
+        if cv.waitKey(1) == ord('q'):  # Exit key, AI
             break
 
-    # When everything done, release the capture
+    # When everything done, release the capture (AI)
     cap.release()
     cv.destroyAllWindows()
     wave_list.stop_all()
 
 def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
     result = hands.process(frame)
-    octave = 0
+    octave = 2  # edit
     if not result.multi_hand_landmarks: return
 
     for i in range(len(result.multi_hand_landmarks)):
@@ -62,41 +65,67 @@ def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
         else:
             handedness = handedness_list[1].classification[0].label
         if not mirrored_camera:  # Swap as the camera is not mirrored
-            handedness = 'Right' if handedness == 'Left' else 'Left'
+            handedness = 'right' if handedness == 'left' else 'left'
 
         handLm = result.multi_hand_landmarks[i]
-        process_nodes(handLm, wave_list, handedness)
-        octave += adjust_octave(handLm.landmark[4], handLm.landmark[5], wave_list, handedness)
+        process_nodes(frame, handLm, wave_list, handedness)
+        octave += adjust_octave(frame, handLm.landmark[4], handLm.landmark[5], wave_list, handedness)
 
+        # Documentation
         mpdraw.draw_landmarks(frame, handLm, mphands.HAND_CONNECTIONS,
                               mpdraw.DrawingSpec(color=(255, 255, 255), circle_radius=3,
                                                  thickness=cv.FILLED),
                               mpdraw.DrawingSpec(color=(255, 255, 255), thickness=1))
     wave_list.octave_set_attempt(octave)
 
-def process_nodes(handLm, wave_list, handedness):
+def process_nodes(frame, handLm, wave_list, handedness):
     node_map, wave_map, tolerance_map = get_maps(handedness)
 
     for i in range(len(handLm.landmark)):
         wave_num = wave_map[i]
         tolerance = tolerance_map[i]
 
-        if node_map[i] == 'palm': adjust_palm_values(handLm.landmark[0], wave_list,
-                                                     handedness)
-        elif node_map[i] == 'note': adjust_note(handLm.landmark[i], handLm.landmark[i-3], wave_list,
+        if node_map[i] == 'palm': adjust_palm_values(handLm.landmark[0], wave_list, handedness)
+        elif node_map[i] == 'note': adjust_note(frame, handLm.landmark[i], handLm.landmark[i-3], wave_list,
                                                 wave_num, tolerance)
 
 def adjust_palm_values(palm_landmark, wave_list, handedness):
-    wrist_l_y = palm_landmark.y
-    vol = (1 - wrist_l_y) * 2
+    vol = (1 - palm_landmark.y) * 2
     if vol > 1: vol = 1
-
     wave_list.set_vol_all(vol, channel=handedness)
 
-def adjust_note(finger_landmark, target_landmark,wave_list, wave_num, tolerance):
+    if not wave_list.chorus_bypass and handedness.lower() == wave_list.chorus_hand:
+        # These values should be read from a file
+        bypass = False
+        max_delay = 20
+        max_depth = 5
+        max_speed = .4
+        max_dry_wet = .5
+
+        multiplier = abs(palm_landmark.x -.5) * 2
+        # normalize the values to fit in what would have been .4-1.0
+        threshold = .4
+        if multiplier <= threshold:
+            multiplier = 0
+            max_speed = 1  # prevent crashing
+            bypass = True
+        else:
+            multiplier = (multiplier - threshold) / (1 - threshold)
+            max_speed *= multiplier
+        '''
+        print(f'delay: {(max_delay * multiplier):.2f}, '
+              f'depth: {(max_depth * multiplier):.2f}, '
+              f'speed: {(max_speed * multiplier):.2f}, '
+              f'dry_wet: {(max_dry_wet * multiplier):.2f}')'''
+        chorus = ChorusSettings(bypass=bypass, delay=max_delay*multiplier, depth=max_depth*multiplier,
+                                speed=max_speed, dry_wet=max_dry_wet*multiplier)
+        wave_list.update_chorus(chorus)
+
+
+def adjust_note(frame, finger_landmark, target_landmark,wave_list, wave_num, tolerance):
     if wave_list.active_waves[wave_num]: tolerance[1] = tolerance[1]*tolerance[2]  # increase range to turn off note
 
-    if finger_is_closed(finger_landmark, target_landmark, tolerance):
+    if finger_is_closed(frame, finger_landmark, target_landmark, tolerance):
         if wave_list.active_waves[wave_num]:
             wave_list.active_waves[wave_num] = 3
             return
@@ -105,7 +134,7 @@ def adjust_note(finger_landmark, target_landmark,wave_list, wave_num, tolerance)
     elif wave_list.active_waves[wave_num]:
         wave_list.deactive_wave_attempt(wave_num)
 
-def finger_is_closed(finger_landmark, target_landmark, tolerance):
+def finger_is_closed(frame, finger_landmark, target_landmark, tolerance):
     t0, t1, _ = tolerance
     x0, y0, z0 = finger_landmark.x, finger_landmark.y, finger_landmark.z
     x1, y1, z1 = target_landmark.x, target_landmark.y, target_landmark.z
@@ -122,7 +151,7 @@ def finger_is_closed(finger_landmark, target_landmark, tolerance):
 def distance(x0, y0, x1, y1):
     return ((x1 - x0)**2 + (y1 - y0)**2)**.5
 
-def adjust_octave(finger_landmark, target_landmark, wave_list, handedness):  # bug where octaves might not get turned off
+def adjust_octave(frame, finger_landmark, target_landmark, wave_list, handedness):  # bug where octaves might not get turned off
     _, _, tolerance_map = get_maps(handedness)
     tolerance = tolerance_map[4]  # thumb
     hand_binary_value = 2 if handedness.lower() == 'left' else 1  # thumbs are assigned binary values, left is greater
@@ -133,14 +162,15 @@ def adjust_octave(finger_landmark, target_landmark, wave_list, handedness):  # b
         (handedness.lower() == 'right' and current_octave_value % 2 == 1)):
         tolerance[1] = tolerance[1] * tolerance[2]
 
-    if finger_is_closed(finger_landmark, target_landmark, tolerance):
-        print('on')
+    if finger_is_closed(frame, finger_landmark, target_landmark, tolerance):
+        return 0 # edit later
         return hand_binary_value
     else:
         return 0
 
 def get_maps(handedness):
     # Nodes values represent the type of value they store, or if a float, their note frequency
+    # Idea to initialize lists as None and unpacking key-value pairs was taken from AI
     left_nodes = {
         **{i: None for i in range(21)},
         0: 'palm',
@@ -180,10 +210,10 @@ def get_maps(handedness):
     tolerances = {
         **{i: None for i in range(21)},
         4:  [0.5, .5, 1.2],  # thumb
-        8:  [0.40, .42, 1.4],  # index
-        12: [0.45, .50, 1.5],  # middle
-        16: [0.50, .34, 1.6],  # ring
-        20: [0.45, .30, 1.5],  # pinky
+        8:  [0.38, .40, 1.7],  # index
+        12: [0.40, .50, 1.5],  # middle
+        16: [0.45, .34, 1.6],  # ring
+        20: [0.40, .30, 1.5],  # pinky
     }
 
     if handedness == 'Left':
