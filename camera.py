@@ -147,15 +147,16 @@ def finger_is_closed(frame, finger_landmark, target_landmark, tolerance):
 
     # Partially taken from AI
     h, w, _ = frame.shape
-    cx, cy = int(x0*w), int(y0*h)
+    cx0, cy0 = int(x0*w), int(y0*h)
+    cx1, cy1 = int(x1*w), int(y1*h)
     radius = int((z_average**t0) * t1 * min(w, h))
-    if e == 4:
-        print(radius)
-        print(distance(x0, y0, x1, y1) * min(w, h))
-    cv.circle(frame, (cx, cy), radius, (255, 0, 0), 2)
 
     # Somewhat arbitrary formula, t0 accounts for distance while t1 is the allotted distance
-    return distance(x0, y0, x1, y1) * min(w, h) < (z_average**t0) * t1 * min(w, h)
+    on_switch = (distance(cx0, cy0, cx1, cy1)) < radius
+    color = (0, 255, 0) if on_switch else (0, 0, 255)
+    cv.circle(frame, (cx0, cy0), radius, color, 2)
+
+    return on_switch
 
 def thumb_is_closed(frame, finger_landmark, target_landmark, tolerance):
     t0, t1, _ = tolerance
@@ -231,7 +232,7 @@ def get_maps(handedness):
 
     tolerances = {
         **{i: None for i in range(21)},
-        4:  [0.3, .3, 1.2],  # thumb
+        4:  [0.3, .25, 1.4],  # thumb
         8:  [0.38, .40, 1.7],  # index
         12: [0.40, .50, 1.5],  # middle
         16: [0.45, .34, 1.6],  # ring

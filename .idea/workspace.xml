@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Chorus implementation into camera">
+    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Chorus bug fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DrySignal.py" beforeDir="false" afterPath="$PROJECT_DIR$/DrySignal.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Wave.py" beforeDir="false" afterPath="$PROJECT_DIR$/Wave.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WaveGroup.py" beforeDir="false" afterPath="$PROJECT_DIR$/WaveGroup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" beforeDir="false" afterPath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -341,7 +339,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775804866494</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Chorus bug fix">
+      <option name="closed" value="true" />
+      <created>1775945243832</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1775945243832</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -359,7 +365,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Start of Project" />
     <MESSAGE value="Wave generator created" />
     <MESSAGE value="Camera file created" />
     <MESSAGE value="General wave producer created" />
@@ -384,7 +389,8 @@
     <MESSAGE value="chorus settings added as an object" />
     <MESSAGE value="chorus settings updated" />
     <MESSAGE value="AI notes" />
-    <option name="LAST_COMMIT_MESSAGE" value="AI notes" />
+    <MESSAGE value="Chorus bug fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Chorus bug fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -399,7 +405,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$SineWave.coverage" NAME="SineWave Coverage Results" MODIFIED="1774216872690" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Visual_Synth$camera.coverage" NAME="camera Coverage Results" MODIFIED="1775945206535" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Visual_Synth$camera.coverage" NAME="camera Coverage Results" MODIFIED="1775975190270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Visual_Synth$ChorusSettings.coverage" NAME="ChorusSettings Coverage Results" MODIFIED="1775682963527" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProject$Wave.coverage" NAME="Wave Coverage Results" MODIFIED="1775069596888" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProject$test.coverage" NAME="test Coverage Results" MODIFIED="1774838481094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -407,8 +413,8 @@
     <SUITE FILE_PATH="coverage/PythonProject$test2.coverage" NAME="test2 Coverage Results" MODIFIED="1773867902328" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Visual_Synth$DrySignal.coverage" NAME="DrySignal Coverage Results" MODIFIED="1775544254236" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProject$main.coverage" NAME="main Coverage Results" MODIFIED="1773810971409" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Visual_Synth$main.coverage" NAME="main Coverage Results" MODIFIED="1775492596196" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Visual_Synth$WaveGroup.coverage" NAME="WaveGroup Coverage Results" MODIFIED="1775854676604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Visual_Synth$main.coverage" NAME="main Coverage Results" MODIFIED="1775974298919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Visual_Synth$Wave.coverage" NAME="Wave Coverage Results" MODIFIED="1775941521395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Visual_Synth$test.coverage" NAME="test Coverage Results" MODIFIED="1775936953019" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProject$CreateWaveShape.coverage" NAME="CreateWaveShape Coverage Results" MODIFIED="1774837670075" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
