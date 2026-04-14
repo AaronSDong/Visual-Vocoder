@@ -4,9 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Chorus bug fix, thumb bug fix">
+    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="How to play button files">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_6_2026_3_19_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_6_2026_3_19_PM__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/How To Play On.png" beforeDir="false" afterPath="$PROJECT_DIR$/How To Play Button On.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/How To Play.png" beforeDir="false" afterPath="$PROJECT_DIR$/How To Play Button.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" beforeDir="false" afterPath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +47,7 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/main.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/main.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -137,7 +143,10 @@
       <workItem from="1775803090516" duration="1710000" />
       <workItem from="1775853883197" duration="5099000" />
       <workItem from="1775931654486" duration="1597000" />
-      <workItem from="1776058610989" duration="1069000" />
+      <workItem from="1776058610989" duration="1136000" />
+      <workItem from="1776086956430" duration="323000" />
+      <workItem from="1776126867590" duration="3224000" />
+      <workItem from="1776133028175" duration="6733000" />
     </task>
     <task id="LOCAL-00001" summary="Start of Project">
       <option name="closed" value="true" />
@@ -355,7 +364,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775975277582</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="How to play button files">
+      <option name="closed" value="true" />
+      <created>1776062749812</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1776062749812</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -373,7 +390,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Camera file created" />
     <MESSAGE value="General wave producer created" />
     <MESSAGE value="Object created to get any available waveform" />
     <MESSAGE value="Camera progress" />
@@ -398,7 +414,8 @@
     <MESSAGE value="AI notes" />
     <MESSAGE value="Chorus bug fix" />
     <MESSAGE value="Chorus bug fix, thumb bug fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="Chorus bug fix, thumb bug fix" />
+    <MESSAGE value="How to play button files" />
+    <option name="LAST_COMMIT_MESSAGE" value="How to play button files" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -422,7 +439,7 @@
     <SUITE FILE_PATH="coverage/Visual_Synth$DrySignal.coverage" NAME="DrySignal Coverage Results" MODIFIED="1775544254236" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProject$main.coverage" NAME="main Coverage Results" MODIFIED="1773810971409" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Visual_Synth$WaveGroup.coverage" NAME="WaveGroup Coverage Results" MODIFIED="1775854676604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Visual_Synth$main.coverage" NAME="main Coverage Results" MODIFIED="1776059010324" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Visual_Synth$main.coverage" NAME="main Coverage Results" MODIFIED="1776145420373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Visual_Synth$Wave.coverage" NAME="Wave Coverage Results" MODIFIED="1775941521395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Visual_Synth$test.coverage" NAME="test Coverage Results" MODIFIED="1775936953019" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProject$CreateWaveShape.coverage" NAME="CreateWaveShape Coverage Results" MODIFIED="1774837670075" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
