@@ -69,27 +69,62 @@ def load_buttons(app):
     app.button_right['image_on'] = 'How To Play Button.png'
     app.button_right['hovered'] = app.button_right.get('hovered', False)
 
+    if not hasattr(app, 'button_chorus'): app.button_chorus = {}
+    app.button_chorus['cx'] = app.width // 8
+    app.button_chorus['cy'] = app.height // 4
+    app.button_chorus['w'] = 140
+    app.button_chorus['h'] = 70
+    app.button_chorus['text'] = 'Chorus\nEffect'
+    app.button_chorus['size'] = 30
+    app.button_chorus['color'] = 'purple'
+    app.button_chorus['hovered'] = app.button_chorus.get('hovered', False)
+
+    if not hasattr(app, 'button_test_wave'): app.button_test_wave = {}
+    app.button_test_wave['cx'] = app.width // 2 - (210//2)
+    app.button_test_wave['cy'] = 3*app.height // 4
+    app.button_test_wave['w'] = 210
+    app.button_test_wave['h'] = 25
+    app.button_test_wave['text'] = 'Test Wave'
+    app.button_test_wave['size'] = 30
+    app.button_test_wave['color'] = app.button_test_wave.get('color', 'red')
+    app.button_test_wave['hovered'] = app.button_test_wave.get('hovered', False)
+
     app.button_list_title_screen = [app.button_play, app.button_menu, app.button_how_to_play]
-    app.button_list_menu = [app.button_exit]
+    app.button_list_menu = [app.button_exit, app.button_chorus]
+    app.button_list_chorus_effect = [app.button_exit, app.button_test_wave]
     app.button_list_how_to_play = [app.button_exit, app.button_right, app.button_left]
 
 def redrawAll(app):
     match app.screen:
-        case 'title_screen': draw_title_screen(app)
-        case 'menu_screen':  draw_menu_screen(app)
-        case 'how_to_play':  draw_how_to_play(app)
+        case 'title_screen':  draw_title_screen(app)
+        case 'menu_screen':   draw_menu_screen(app)
+        case 'chorus_effect': draw_chorus_effect(app)
+        case 'how_to_play':   draw_how_to_play(app)
 
 def draw_title_screen(app):
     draw_background(app)
     drawLabel('Visual Synthesizer!', app.width // 2, app.height // 4, font=app.font, size=40)
-    draw_button(app, app.button_menu)
-    draw_button(app, app.button_play)
-    draw_button(app, app.button_how_to_play)
+    for button in app.button_list_title_screen:
+        draw_button(app, button)
 
 def draw_menu_screen(app):
     draw_background(app)
     drawLabel('Menu', app.width//2, 100, font=app.font, size=60)
-    draw_button(app, app.button_exit)
+    for button in app.button_list_menu:
+        draw_button(app, button)
+
+def draw_chorus_effect(app):
+    draw_background(app)
+    drawLabel('Chorus Effect', app.width//2, 100, font=app.font, size=60)
+    drawImage('Menu Button.png', app.width//2, int(app.height * .45), width=600, height=300, align='center')
+    for button in app.button_list_chorus_effect:
+        draw_button(app, button)
+
+    slider_x0, slider_x1, slider_x2, slider_x3 = .4*app.width, .52*app.width, .64*app.width, .76*app.width
+    slider_y0, slider_y1, slider_y2, slider_y3 = app.height // 2, app.height // 2, app.height // 2, app.height // 2,
+    slider_list = [(slider_x0, slider_y0), (slider_x1, slider_y1), (slider_x2, slider_y2), (slider_x3, slider_y3)]
+    for slider in slider_list:
+        drawRect(slider[0], slider[1], 50, 20, align='center', fill='white')
 
 def draw_how_to_play(app):
     draw_background(app)
@@ -171,17 +206,26 @@ Enjoy!"""
                 drawLabel(line, app.width // 2, paragraph_start + line_spacing * i, font=app.font, size=16)
 
 def draw_button(app, button):
-    image = button['image_on'] if button['hovered'] else button['image_off']
-    drawImage(image, button['cx'], button['cy'], width=button['w'], height=button['h'])
+    if 'image_on' in button:
+        image = button['image_on'] if button['hovered'] else button['image_off']
+        drawImage(image, button['cx'], button['cy'], width=button['w'], height=button['h'])
+
+    else:
+        color = 'cyan' if button['hovered'] else button['color']
+        for i in range(len(button['text'].splitlines())):
+            line = button['text'].splitlines()[i]
+            drawLabel(line, button['cx'], button['cy'] + button['size']*1.5*i,
+                      size=button['size'], font=app.font, fill=color, align='top-left')
 
 def draw_background(app):
     drawRect(0, 0, app.width, app.height, fill='pink')
 
 def onMouseMove(app, mouse_x, mouse_y):
     match app.screen:
-        case 'title_screen': hoverButton(app, app.button_list_title_screen, mouse_x, mouse_y)
-        case 'menu_screen':  hoverButton(app, app.button_list_menu,         mouse_x, mouse_y)
-        case 'how_to_play':  hoverButton(app, app.button_list_how_to_play,  mouse_x, mouse_y)
+        case 'title_screen':  hoverButton(app, app.button_list_title_screen,  mouse_x, mouse_y)
+        case 'menu_screen':   hoverButton(app, app.button_list_menu,          mouse_x, mouse_y)
+        case 'chorus_effect': hoverButton(app, app.button_list_chorus_effect, mouse_x, mouse_y)
+        case 'how_to_play':   hoverButton(app, app.button_list_how_to_play,   mouse_x, mouse_y)
 
 def hoverButton(app, button_list, mouse_x, mouse_y):
     for button in button_list:
@@ -197,8 +241,19 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_screen(app, 'how_to_play', app.button_how_to_play)
 
         case 'menu_screen':
-            if   mouse_in_button(app, app.button_exit,  mouse_x, mouse_y):
-                change_screen(app, 'title_screen', app.button_exit)
+            if   mouse_in_button(app, app.button_exit,   mouse_x, mouse_y):
+                change_screen(app, 'title_screen',  app.button_exit)
+            elif mouse_in_button(app, app.button_chorus, mouse_x, mouse_y):
+                change_screen(app, 'chorus_effect', app.button_chorus)
+
+        case 'chorus_effect':
+            if   mouse_in_button(app, app.button_exit,      mouse_x, mouse_y):
+                change_screen(app, 'menu_screen',  app.button_exit)
+            elif mouse_in_button(app, app.button_test_wave, mouse_x, mouse_y):
+                # play wave
+
+                neon_green = rgb(57, 255, 20)
+                app.button_test_wave['color'] = 'red' if app.button_test_wave['color'] == neon_green else neon_green
 
         case 'how_to_play':
             if   mouse_in_button(app, app.button_exit, mouse_x, mouse_y):
