@@ -3,6 +3,7 @@ import time
 import mediapipe as mp
 import WaveGroup
 from ChorusSettings import ChorusSettings
+from SettingsScript import load_settings
 
 import warnings
 
@@ -30,7 +31,10 @@ def camera():
                           static_image_mode=False)
     mpdraw = mp.solutions.drawing_utils
 
-    chorus = ChorusSettings(bypass=False)  # take settings from a save file later
+    settings = load_settings()
+    chorus = ChorusSettings(bypass=settings['chorus_bypass'], delay=settings['chorus_delay'],
+                            depth=settings['chorus_depth'], speed=settings['chorus_speed'],
+                            dry_wet=settings['chorus_dry_wet'])
     wave_list = WaveGroup.WaveGroup(wave_shape='triangle', mono=True, scale='major', key='F', max_vol=0, chorus=chorus)
 
     # Debugging
@@ -69,10 +73,7 @@ def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
 
         handLm = result.multi_hand_landmarks[i]
         process_nodes(frame, handLm, wave_list, handedness)
-        global e
-        e = 4
         octave += adjust_octave(frame, handLm.landmark[4], handLm.landmark[5], wave_list, handedness)
-        e = 5
 
         # Documentation
         mpdraw.draw_landmarks(frame, handLm, mphands.HAND_CONNECTIONS,
@@ -85,8 +86,6 @@ def process_nodes(frame, handLm, wave_list, handedness):
     node_map, wave_map, tolerance_map = get_maps(handedness)
 
     for i in range(len(handLm.landmark)):
-        global e
-        e = i
         wave_num = wave_map[i]
         tolerance = tolerance_map[i]
 

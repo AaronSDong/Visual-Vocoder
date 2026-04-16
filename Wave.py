@@ -127,6 +127,7 @@ class Wave:
             [signal.set_volume(self.max_vol_right, channel='right') for signal in self.signal_list]
 
     def update_chorus_settings(self, chorus):
+        if self.chorus.bypass: return
         self.chorus = chorus
         self.chorus.delay_f = self.chorus.convert_sec_to_f(self.chorus.delay_sec, self.f)
         self.chorus.depth_f = self.chorus.convert_sec_to_f(self.chorus.depth_sec, self.f)
