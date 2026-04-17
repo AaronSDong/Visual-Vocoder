@@ -155,29 +155,29 @@ class DrySignal:
         self.wave_shape = CreateWaveShape(shape, self.sample_rate).array
 
 def main():
+    # Pseudo chorus effect, prints output frequencies
+
     freq_list = [434, 444]
     wave5 = DrySignal(f=434, wave_shape='sine', max_vol=1)  # vol is dry/wet
     wave1 = DrySignal(f=440, wave_shape='sine')
     wave3 = DrySignal(f=444, wave_shape='sine', max_vol=1)
     wave_list = [wave3, wave5]
-    time.sleep(2)
     for w in wave_list:
         time.sleep(0.2)  # delay
-    time.sleep(5)
-    start_time = time.time()
     for _ in range(100):
         for i in range(len(wave_list)):
-            print(time.time()-start_time)
             w = wave_list[i]
             f = freq_list[i]
-            f += (f-440)//2  # depth
+            f += (f-440)/2  # depth
             w.set_frequency(f)
+            print(f)
         time.sleep(.015)  # speed (also change how fast freq step)
         for i in range(len(wave_list)):
             w = wave_list[i]
             f = freq_list[i]
-            f -= (f-440)//4
+            f -= (f-440)/4
             w.set_frequency(f)
+            print(f)
         time.sleep(.015)
 
 

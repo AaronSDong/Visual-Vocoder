@@ -1,5 +1,21 @@
+"""
+Project Notes:
+Most of the effort spent on this project was focused on the auditory aspect of it (specifically, the WaveGroup class
+and anything deeper inside of it). Much care was used to ensure that audio played would not 'clip,' as these bugs are
+very common. Each of the wave classes were written to also operate independently outside of this specific project,
+and as such main() functions were written at the bottom of most of them to demonstrate that. Outside the vocoder,
+all audio processing was done manually with only the use of pyaudio to play the signals.
+Files to look at: 'WaveGroup.py' --> 'Wave.py' --> 'DrySignal.py'
+
+To get an indepth description of the project, please see the 'How To Play' section of my program. In short, curling your
+fingers will result in the synth playing a tone, with hand movements controlling certain parameters. To see how fingers
+are detected, please see 'Camera.py,' specifically from line 60 down.
+
+All UI elements are contained within 'main.py'
+"""
+
 from cmu_graphics import *
-from camera import camera
+from Camera import camera
 from SettingsScript import load_settings, update_settings_file
 
 class Slider:
@@ -101,7 +117,7 @@ def load_buttons(app):
     app.button_right['hovered'] = app.button_right.get('hovered', False)
 
     if not hasattr(app, 'button_chorus'): app.button_chorus = {}
-    app.button_chorus['cx'] = app.width // 8
+    app.button_chorus['cx'] = int(app.width * .2 - 140/2)
     app.button_chorus['cy'] = app.height // 4
     app.button_chorus['w'] = 140
     app.button_chorus['h'] = 70
@@ -109,6 +125,16 @@ def load_buttons(app):
     app.button_chorus['size'] = 30
     app.button_chorus['color'] = 'purple'
     app.button_chorus['hovered'] = app.button_chorus.get('hovered', False)
+
+    if not hasattr(app, 'button_vocoder'): app.button_vocoder = {}
+    app.button_vocoder['cx'] = int(app.width * .5 - 153/2)
+    app.button_vocoder['cy'] = app.height // 4
+    app.button_vocoder['w'] = 152
+    app.button_vocoder['h'] = 28
+    app.button_vocoder['text'] = 'Vocoder'
+    app.button_vocoder['size'] = 30
+    app.button_vocoder['color'] = 'purple'
+    app.button_vocoder['hovered'] = app.button_vocoder.get('hovered', False)
 
     if not hasattr(app, 'button_test_wave'): app.button_test_wave = {}
     app.button_test_wave['cx'] = app.width // 2 - (210//2)
@@ -121,7 +147,7 @@ def load_buttons(app):
     app.button_test_wave['hovered'] = app.button_test_wave.get('hovered', False)
 
     app.button_list_title_screen = [app.button_play, app.button_menu, app.button_how_to_play]
-    app.button_list_menu = [app.button_exit, app.button_chorus]
+    app.button_list_menu = [app.button_exit, app.button_chorus, app.button_vocoder]
     app.button_list_chorus_effect = [app.button_exit, app.button_test_wave]
     app.button_list_how_to_play = [app.button_exit, app.button_right, app.button_left]
 
@@ -146,6 +172,7 @@ def redrawAll(app):
         case 'title_screen':  draw_title_screen(app)
         case 'menu_screen':   draw_menu_screen(app)
         case 'chorus_effect': draw_chorus_effect(app)
+        case 'vocoder':       draw_vocoder(app)
         case 'how_to_play':   draw_how_to_play(app)
 
 def draw_title_screen(app):
@@ -169,6 +196,10 @@ def draw_chorus_effect(app):
 
     for slider in app.chorus_sliders:
         drawRect(slider.x_value, slider.y_value, app.slider_size, app.slider_size, fill='white', align='center')
+
+def draw_vocoder(app):
+    draw_background(app)
+    drawLabel('Vocoder', app.width//2, 100, font=app.font, size=60)
 
 def draw_how_to_play(app):
     draw_background(app)
@@ -285,10 +316,12 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_screen(app, 'how_to_play', app.button_how_to_play)
 
         case 'menu_screen':
-            if   mouse_in_button(app, app.button_exit,   mouse_x, mouse_y):
+            if   mouse_in_button(app, app.button_exit,    mouse_x, mouse_y):
                 change_screen(app, 'title_screen',  app.button_exit)
-            elif mouse_in_button(app, app.button_chorus, mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_chorus,  mouse_x, mouse_y):
                 change_screen(app, 'chorus_effect', app.button_chorus)
+            elif mouse_in_button(app, app.button_vocoder, mouse_x, mouse_y):
+                change_screen(app, 'vocoder', app.button_vocoder)
 
         case 'chorus_effect':
             test_mouse_in_slider(app, app.chorus_sliders,   mouse_x, mouse_y)

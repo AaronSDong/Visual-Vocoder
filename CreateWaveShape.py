@@ -26,7 +26,6 @@ class CreateWaveShape:
 def main():
     wave = CreateWaveShape('triangle', 44100)
     print(wave.array)
-    pass
 
 if __name__ == '__main__':
     main()

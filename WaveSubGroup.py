@@ -1,3 +1,5 @@
+# Old code, currently unused
+
 import Wave
 import random
 import time

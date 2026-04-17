@@ -7,7 +7,7 @@ from ChorusSettings import ChorusSettings
 
 class Wave:
     def __init__(self, chorus=ChorusSettings(bypass=True),
-                 wave_shape='sine', t=None,f=440.0, max_vol=1.0, mono=True):
+                 wave_shape='sine', t=None, f=440.0, max_vol=1.0, mono=True):
         self.t = t
         self.f = f
         note_multiple = 1.05946
@@ -64,14 +64,14 @@ class Wave:
         start_time = time.time()
         infinite_flag = True if t is None else False
         while (infinite_flag or time.time() - start_time < t) and self.playing:
-            self.write_audio(start_time)
+            self.write_audio()
 
         # Let the audio fade before ending, avoids clipping sound (idea taken from AI)
         while self.dry_signal.volume_left != 0 and self.dry_signal.volume_right != 0:
             [signal.set_volume(0, channel='mono') for signal in self.signal_list]
-            self.write_audio(start_time)
+            self.write_audio()
 
-    def write_audio(self, start_time):
+    def write_audio(self):
         sample = self.dry_signal.receive_chunk()
         if not self.chorus.bypass:
             sample = self._internal_add_chorus(sample)
@@ -79,13 +79,15 @@ class Wave:
         self.stream.write(output_bytes)
 
 
-    def play(self, t=None):
+    def play(self, t=None, max_vol=1):
         self.playing = False
         if self.thread and self.thread.is_alive():
             self.thread.join()
 
         self.playing = True
         for signal in self.signal_list:
+            self.max_vol_left = max_vol
+            self.max_vol_right = max_vol
             signal.set_volume(self.max_vol_left,  channel='left')
             signal.set_volume(self.max_vol_right, channel='right')
         self.thread = threading.Thread(target=self._internal_play_loop, kwargs={'t': t})
@@ -190,20 +192,18 @@ class Wave:
         self.p.terminate()
 
 def main():
-    chorus = ChorusSettings(bypass=False, dry_wet=.5)
-    wave = Wave(chorus, f=880, wave_shape='triangle', max_vol=1, t=4, mono=False)
+    chorus = ChorusSettings(bypass=False, dry_wet=0, depth=0, speed=0.1, delay=0)
+    wave = Wave(chorus, f=880, wave_shape='triangle', max_vol=.8, t=0, mono=False)
+    wave.play(t=3, max_vol=.8)
     time.sleep(1)
-    chorus = ChorusSettings(bypass=False, depth=2.83, speed=0.13, delay=11.34, dry_wet=0.28)
+    chorus = ChorusSettings(bypass=False, dry_wet=.5, depth=10, speed=0.4, delay=20)
     wave.update_chorus_settings(chorus)
+    time.sleep(2)
+    wave.pause()
     wave.play(t=3)
-    time.sleep(1)
+    time.sleep(2)
     chorus = ChorusSettings(bypass=False, depth=2.8331251, speed=0.123142, delay=11.91827, dry_wet=0.282947)
     wave.update_chorus_settings(chorus)
-    # time.sleep(1)
-    # chorus = ChorusSettings.ChorusSettings(bypass=False, depth=0, delay=0)
-    # wave.update_chorus_settings(chorus)
-    # wave2 = Wave(chorus, wave_shape='triangle', max_vol=.25, f=450)
-    # wave3 = Wave(chorus, wave_shape='triangle', max_vol=.25, f=460)
 
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@ def calculate_fps(prev_time, frame):
     prev_time = current_time
 
     fps_text = f"FPS: {fps:.0f}"
-    cv.putText(frame, fps_text, (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv.putText(frame, fps_text, (10, 30), cv.FONT_HERSHEY_SIMPLEX, .5, (0, 255, 0), 2)
     return prev_time
 
 def camera():
@@ -45,6 +45,8 @@ def camera():
 
         if mirrored_camera: frame = cv.flip(frame, 1)
         prev_time = calculate_fps(prev_time, frame)
+        cv.putText(frame, 'press q to exit', (10, 50),
+                   cv.FONT_HERSHEY_SIMPLEX, .5, (0, 255, 0), 2)
         process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera)
         # frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)  # Grey Scale
 
@@ -133,7 +135,7 @@ def adjust_note(frame, finger_landmark, target_landmark,wave_list, wave_num, tol
         if wave_list.active_waves[wave_num]:
             wave_list.active_waves[wave_num] = 3
             return
-        wave_list.play_wave(wave_num, None)
+        wave_list.play_wave(wave_num, None, max_vol=0)
 
     elif wave_list.active_waves[wave_num]:
         wave_list.deactivate_wave_attempt(wave_num)

@@ -1,5 +1,5 @@
 import Wave
-import numpy as np
+from GetScale import getScale
 from ChorusSettings import ChorusSettings
 
 class WaveGroup:
@@ -11,13 +11,14 @@ class WaveGroup:
 
         self.octave_shift = octave
         self.octave_multiplier = (octave + 2) - 4  # Translate octave where the 2nd octave is equal to C4
-        self.key_shifter = 2 ** (self.get_key_index(key) / 12)  # equal temperament factor
-        self.scale = self.get_scale(scale.lower())
+        self.key = key
+        self.scale_type = scale
+        self.scale = getScale(scale, key)
 
         if f_list is None:
-            self.f_list = self.scale * self.key_shifter * (2**self.octave_multiplier)
+            self.f_list = self.scale * (2**self.octave_multiplier)
         else:
-            self.f_list = f_list
+            self.f_list = f_list  # Custom chosen notes
 
         self.active_waves = [3 for _ in range(len(self.f_list))]  # 3 represents counter till deactivation
         self.wave_list = []
@@ -26,8 +27,8 @@ class WaveGroup:
             self.wave_list.append(Wave.Wave(wave_shape=wave_shape, t=0, f=freq, mono=mono, max_vol=max_vol,
                                             chorus=chorus))
 
-    def play_wave(self, wave_num, t):
-        self.wave_list[wave_num].play(t=t)
+    def play_wave(self, wave_num, t, max_vol=1):
+        self.wave_list[wave_num].play(t=t, max_vol=max_vol)
         self.active_waves[wave_num] = 3
 
     def deactivate_wave_attempt(self, wave_num):
@@ -47,11 +48,14 @@ class WaveGroup:
         for wave in self.wave_list:
             wave.set_volume(volume, channel=channel)
 
-    def adjust_key_and_scale(self, key=None, scale=None):
-        if key is not None: self.key_shifter = (self.get_key_index(key)) * (2**(1/12))  # equal temperament factor
-        if scale is not None: self.scale = self.get_scale(scale.lower())
+    def adjust_key_and_scale(self, key=None, scale_type=None):
+        if key is None: key = self.key
+        if scale_type is None: scale_type = self.scale_type
+        self.key = key
+        self.scale = scale_type
+        scale = getScale(key, scale_type)
 
-        self.f_list = self.scale * self.key_shifter * (2 ** self.octave_multiplier)
+        self.f_list = scale * (2 ** self.octave_multiplier)
         self.shift_freq()
 
     def _internal_adjust_octave(self, octave):
@@ -73,39 +77,58 @@ class WaveGroup:
         for wave in self.wave_list:
             wave.stop()
 
-    # dictionaries below here were created by AI
-    @staticmethod
-    def get_key_index(key):
-        # Index relative to C (going up)
-        index = {
-            'C': 0, 'B#': 0, 'Dbb': 0,
-            'C#': 1, 'Db': 1,
-            'D': 2, 'C##': 2, 'Ebb': 2,
-            'D#': 3, 'Eb': 3,
-            'E': 4, 'Fb': 4, 'D##': 4,
-            'F': 5, 'E#': 5, 'Gbb': 5,
-            'F#': 6, 'Gb': 6,
-            'G': 7, 'F##': 7, 'Abb': 7,
-            'G#': 8, 'Ab': 8,
-            'A': 9, 'G##': 9, 'Bbb': 9,
-            'A#': 10, 'Bb': 10,
-            'B': 11, 'Cb': 11, 'A##': 11
-        }
+# Example demonstration written by AI
 
-        return index[key]
-    @staticmethod
-    def get_scale(scale):
-        # All scales are in Just Intonation, starting at C4 (list of frequencies)
-        scale_list = {
-            "major": [256.0, 288.0, 320.0, 341.33, 384.0, 426.67, 480.0, 512.0],
-            "minor": [256.0, 288.0, 307.2, 341.33, 384.0, 409.6, 460.8, 512.0],
-            "harmonic_minor": [256.0, 288.0, 307.2, 341.33, 384.0, 409.6, 480.0, 512.0],
-            "blues": [256.0, 307.2, 341.33, 360.0, 384.0, 426.67, 460.8, 512.0],
-            "dorian": [256.0, 288.0, 307.2, 341.33, 384.0, 426.67, 460.8, 512.0],
-            "phrygian": [256.0, 273.07, 307.2, 341.33, 384.0, 409.6, 460.8, 512.0],
-            "lydian": [256.0, 288.0, 320.0, 360.0, 384.0, 426.67, 480.0, 512.0],
-            "mixolydian": [256.0, 288.0, 320.0, 341.33, 384.0, 426.67, 460.8, 512.0],
-            "locrian": [256.0, 273.07, 307.2, 341.33, 364.09, 409.6, 460.8, 512.0]
-        }
+def main():
+    import time
 
-        return np.array(scale_list[scale])
+    # Setup the synth
+    settings = ChorusSettings()
+    synth = WaveGroup(
+        wave_shape='sine',
+        key='G',
+        scale='major',
+        octave=2,
+        max_vol=0.5,
+        chorus=settings
+    )
+
+    # A 4-chord progression indices: G (I), D (V), Em (vi), C (IV)
+    progression = [
+        [0, 2, 4],  # Chord 1
+        [4, 6, 1],  # Chord 2
+        [5, 0, 2],  # Chord 3
+        [3, 5, 0]  # Chord 4
+    ]
+
+    bpm = 100
+    beat_duration = 60 / bpm
+
+    print("Playing... Press Ctrl+C to stop.")
+
+    try:
+        while True:  # Loop the song indefinitely
+            for chord in progression:
+                # 1. PLAY THE CHORD
+                for note_index in chord:
+                    synth.play_wave(note_index, t=100, max_vol=.5)
+
+                # 2. HOLD THE NOTES
+                time.sleep(beat_duration)
+
+                # 3. DEACTIVATE (The "3-attempt" logic)
+                # Your code requires 3 calls to reach 0 and trigger wave.pause()
+                for note_index in chord:
+                    synth.deactivate_wave_attempt(note_index)
+                    synth.deactivate_wave_attempt(note_index)
+                    synth.deactivate_wave_attempt(note_index)
+
+                # Small gap between chords to prevent muddy transitions
+                time.sleep(0.05)
+
+    except KeyboardInterrupt:
+        synth.stop_all()
+        print("\nSong stopped.")
+
+if __name__ == "__main__":
+    main()

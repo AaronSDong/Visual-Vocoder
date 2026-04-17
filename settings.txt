@@ -1,5 +1,5 @@
 chorus_bypass=False
-chorus_delay=34.5
-chorus_depth=1.0
-chorus_speed=0.78
-chorus_dry_wet=0.18
+chorus_delay=14.25
+chorus_depth=22.75
+chorus_speed=0.87
+chorus_dry_wet=0.27
