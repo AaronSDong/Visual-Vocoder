@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="UI buttons drawn, saved settings">
-      <change afterPath="$PROJECT_DIR$/CameraVocoder.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GetScale.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vocoder.py" afterDir="false" />
+    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Vocoder created, added to camera">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CreateWaveShape.py" beforeDir="false" afterPath="$PROJECT_DIR$/CreateWaveShape.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DrySignal.py" beforeDir="false" afterPath="$PROJECT_DIR$/DrySignal.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Wave.py" beforeDir="false" afterPath="$PROJECT_DIR$/Wave.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WaveGroup.py" beforeDir="false" afterPath="$PROJECT_DIR$/WaveGroup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WaveSubGroup.py" beforeDir="false" afterPath="$PROJECT_DIR$/WaveSubGroup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CameraVocoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/CameraVocoder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" beforeDir="false" afterPath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.txt" beforeDir="false" afterPath="$PROJECT_DIR$/settings.txt" afterDir="false" />
@@ -91,7 +83,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "configurable.group.python.group.settings",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -411,7 +403,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776319289170</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Vocoder created, added to camera">
+      <option name="closed" value="true" />
+      <created>1776409788222</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1776409788222</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -429,7 +429,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Threading, synth and camera playability added" />
     <MESSAGE value="Progress on processing hands" />
     <MESSAGE value="Handedness detectable, playability with one synth per hand" />
     <MESSAGE value="Wave.py bug fix" />
@@ -454,7 +453,8 @@
     <MESSAGE value="Many UI updates, mainly worked on how to play section" />
     <MESSAGE value="Chorus Page UI start" />
     <MESSAGE value="UI buttons drawn, saved settings" />
-    <option name="LAST_COMMIT_MESSAGE" value="UI buttons drawn, saved settings" />
+    <MESSAGE value="Vocoder created, added to camera" />
+    <option name="LAST_COMMIT_MESSAGE" value="Vocoder created, added to camera" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$SineWave.coverage" NAME="SineWave Coverage Results" MODIFIED="1774216872690" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

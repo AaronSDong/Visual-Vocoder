@@ -1,3 +1,4 @@
+enable_vocoder=True
 chorus_bypass=False
 chorus_delay=14.25
 chorus_depth=22.75

@@ -16,6 +16,7 @@ All UI elements are contained within 'main.py'
 
 from cmu_graphics import *
 from Camera import camera
+from CameraVocoder import camera as cameraVocoder
 from SettingsScript import load_settings, update_settings_file
 
 class Slider:
@@ -49,6 +50,9 @@ class Slider:
 def onAppStart(app):
     app.width = 800
     app.height = 800
+
+    settings = load_settings()
+    app.enable_vocoder = True if settings['enable_vocoder'] == 'True' else False
 
     app.screen = 'title_screen'
     app.how_to_play_page = 0
@@ -126,16 +130,6 @@ def load_buttons(app):
     app.button_chorus['color'] = 'purple'
     app.button_chorus['hovered'] = app.button_chorus.get('hovered', False)
 
-    if not hasattr(app, 'button_vocoder'): app.button_vocoder = {}
-    app.button_vocoder['cx'] = int(app.width * .5 - 153/2)
-    app.button_vocoder['cy'] = app.height // 4
-    app.button_vocoder['w'] = 152
-    app.button_vocoder['h'] = 28
-    app.button_vocoder['text'] = 'Vocoder'
-    app.button_vocoder['size'] = 30
-    app.button_vocoder['color'] = 'purple'
-    app.button_vocoder['hovered'] = app.button_vocoder.get('hovered', False)
-
     if not hasattr(app, 'button_test_wave'): app.button_test_wave = {}
     app.button_test_wave['cx'] = app.width // 2 - (210//2)
     app.button_test_wave['cy'] = 3*app.height // 4
@@ -146,10 +140,56 @@ def load_buttons(app):
     app.button_test_wave['color'] = app.button_test_wave.get('color', 'red')
     app.button_test_wave['hovered'] = app.button_test_wave.get('hovered', False)
 
+    if not hasattr(app, 'button_vocoder'): app.button_vocoder = {}
+    app.button_vocoder['cx'] = int(app.width * .5 - 153/2)
+    app.button_vocoder['cy'] = app.height // 4
+    app.button_vocoder['w'] = 152
+    app.button_vocoder['h'] = 28
+    app.button_vocoder['text'] = 'Vocoder'
+    app.button_vocoder['size'] = 30
+    app.button_vocoder['color'] = 'purple'
+    app.button_vocoder['hovered'] = app.button_vocoder.get('hovered', False)
+
+    if not hasattr(app, 'button_test_vocoder'): app.button_test_vocoder = {}
+    app.button_test_vocoder['cx'] = app.width // 2 - (270//2)
+    app.button_test_vocoder['cy'] = 3*app.height // 4
+    app.button_test_vocoder['w'] = 270
+    app.button_test_vocoder['h'] = 25
+    app.button_test_vocoder['text'] = 'Test Vocoder'
+    app.button_test_vocoder['size'] = 30
+    app.button_test_vocoder['color'] = app.button_test_vocoder.get('color', 'red')
+    app.button_test_vocoder['hovered'] = app.button_test_vocoder.get('hovered', False)
+
+    if not hasattr(app, 'button_enable_vocoder_on'): app.button_enable_vocoder_on = {}
+    app.button_enable_vocoder_on['cx'] = (app.width // 2 + 100) - 40//2
+    app.button_enable_vocoder_on['cy'] = (app.height // 2) - 25//2
+    app.button_enable_vocoder_on['w'] = 50
+    app.button_enable_vocoder_on['h'] = 25
+    app.button_enable_vocoder_on['text'] = 'On'
+    app.button_enable_vocoder_on['size'] = 30
+    app.button_enable_vocoder_on['color'] = app.button_enable_vocoder_on.get('color', 'red')
+    app.button_enable_vocoder_on['hovered'] = app.button_enable_vocoder_on.get('hovered', False)
+
+    if not hasattr(app, 'button_enable_vocoder_off'): app.button_enable_vocoder_off = {}
+    app.button_enable_vocoder_off['cx'] = (app.width // 2 + 100) - 60//2
+    app.button_enable_vocoder_off['cy'] = (app.height // 2) - 25//2
+    app.button_enable_vocoder_off['w'] = 70
+    app.button_enable_vocoder_off['h'] = 25
+    app.button_enable_vocoder_off['text'] = 'Off'
+    app.button_enable_vocoder_off['size'] = 30
+    app.button_enable_vocoder_off['color'] = app.button_enable_vocoder_off.get('color', 'red')
+    app.button_enable_vocoder_off['hovered'] = app.button_enable_vocoder_off.get('hovered', False)
+
     app.button_list_title_screen = [app.button_play, app.button_menu, app.button_how_to_play]
     app.button_list_menu = [app.button_exit, app.button_chorus, app.button_vocoder]
     app.button_list_chorus_effect = [app.button_exit, app.button_test_wave]
+    app.button_list_vocoder = [app.button_exit, app.button_test_vocoder]
     app.button_list_how_to_play = [app.button_exit, app.button_right, app.button_left]
+
+    if app.enable_vocoder:
+        app.button_list_vocoder.append(app.button_enable_vocoder_on)
+    else:
+        app.button_list_vocoder.append(app.button_enable_vocoder_off)
 
 def load_sliders(app):
     app.slider_size = 30
@@ -200,6 +240,12 @@ def draw_chorus_effect(app):
 def draw_vocoder(app):
     draw_background(app)
     drawLabel('Vocoder', app.width//2, 100, font=app.font, size=60)
+    drawLabel('Enable:', app.width//2 - 100, app.height//2, font=app.font, size=40)
+    drawLabel('*Note: enable vocoder will disable', 10, app.height-40, font=app.font, size=12, align='left')
+    drawLabel('regular synthesizer functionality',  10, app.height-20, font=app.font, size=12, align='left')
+
+    for button in app.button_list_vocoder:
+        draw_button(app, button)
 
 def draw_how_to_play(app):
     draw_background(app)
@@ -285,6 +331,7 @@ def draw_button(app, button):
         image = button['image_on'] if button['hovered'] else button['image_off']
         drawImage(image, button['cx'], button['cy'], width=button['w'], height=button['h'])
 
+    # Text buttons
     else:
         color = 'cyan' if button['hovered'] else button['color']
         for i in range(len(button['text'].splitlines())):
@@ -300,6 +347,7 @@ def onMouseMove(app, mouse_x, mouse_y):
         case 'title_screen':  hoverButton(app, app.button_list_title_screen,  mouse_x, mouse_y)
         case 'menu_screen':   hoverButton(app, app.button_list_menu,          mouse_x, mouse_y)
         case 'chorus_effect': hoverButton(app, app.button_list_chorus_effect, mouse_x, mouse_y)
+        case 'vocoder':       hoverButton(app, app.button_list_vocoder,       mouse_x, mouse_y)
         case 'how_to_play':   hoverButton(app, app.button_list_how_to_play,   mouse_x, mouse_y)
 
 def hoverButton(app, button_list, mouse_x, mouse_y):
@@ -309,7 +357,11 @@ def hoverButton(app, button_list, mouse_x, mouse_y):
 def onMousePress(app, mouse_x, mouse_y):
     match app.screen:
         case 'title_screen':
-            if   mouse_in_button(app, app.button_play, mouse_x, mouse_y): camera()
+            if   mouse_in_button(app, app.button_play, mouse_x, mouse_y):
+                if app.enable_vocoder:
+                    cameraVocoder()
+                else:
+                    camera()
             elif mouse_in_button(app, app.button_menu, mouse_x, mouse_y):
                 change_screen(app, 'menu_screen', app.button_menu)
             elif mouse_in_button(app, app.button_how_to_play, mouse_x, mouse_y):
@@ -331,6 +383,24 @@ def onMousePress(app, mouse_x, mouse_y):
                 # UPDATE PLAY WAVE HERE
                 neon_green = rgb(57, 255, 20)
                 app.button_test_wave['color'] = 'red' if app.button_test_wave['color'] == neon_green else neon_green
+
+        case 'vocoder':
+            if   mouse_in_button(app, app.button_exit,               mouse_x, mouse_y):
+                change_screen(app, 'menu_screen',  app.button_exit)
+            elif mouse_in_button(app, app.button_test_vocoder,       mouse_x, mouse_y):
+                # UPDATE PLAY WAVE HERE
+                neon_green = rgb(57, 255, 20)
+                app.button_test_vocoder['color'] = 'red' if app.button_test_wave['color'] == neon_green else neon_green
+            elif mouse_in_button(app, app.button_enable_vocoder_on,  mouse_x, mouse_y) and app.enable_vocoder:
+                app.enable_vocoder = False
+                update_settings_file('enable_vocoder', False)
+                app.button_list_vocoder.remove(app.button_enable_vocoder_on)
+                app.button_list_vocoder.append(app.button_enable_vocoder_off)
+            elif mouse_in_button(app, app.button_enable_vocoder_off, mouse_x, mouse_y) and not app.enable_vocoder:
+                app.enable_vocoder = True
+                update_settings_file('enable_vocoder', True)
+                app.button_list_vocoder.remove(app.button_enable_vocoder_off)
+                app.button_list_vocoder.append(app.button_enable_vocoder_on)
 
         case 'how_to_play':
             if   mouse_in_button(app, app.button_exit, mouse_x, mouse_y):

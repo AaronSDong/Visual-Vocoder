@@ -77,7 +77,7 @@ def vocoder_thread(state: VocoderState):
     while state.running:
         raw = input_stream.read(chunk, exception_on_overflow=False)
         audio_np = np.frombuffer(raw, dtype=np.float32).astype(np.float64)
-        audio_np = audio_np * 3  # input gain
+        audio_np = audio_np * 5  # input gain
 
         rms = np.sqrt(np.mean(audio_np ** 2))
         vol = state.get_volume()
