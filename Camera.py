@@ -35,7 +35,9 @@ def camera():
     chorus = ChorusSettings(bypass=settings['chorus_bypass'], delay=settings['chorus_delay'],
                             depth=settings['chorus_depth'], speed=settings['chorus_speed'],
                             dry_wet=settings['chorus_dry_wet'])
-    wave_list = WaveGroup.WaveGroup(wave_shape='triangle', mono=True, scale='major', key='F', max_vol=0, chorus=chorus)
+    wave_list = WaveGroup.WaveGroup(wave_shape='triangle', mono=True,
+                                    scale=settings['scale'], key=settings['key'],
+                                    max_vol=0, chorus=chorus)
 
     # Debugging
     prev_time = 0

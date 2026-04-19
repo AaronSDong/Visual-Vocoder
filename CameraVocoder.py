@@ -309,10 +309,8 @@ def get_maps(handedness):
     else:
         return right_nodes, right_waves, tolerances
 
-
 def main():
     camera()
-
 
 if __name__ == '__main__':
     main()

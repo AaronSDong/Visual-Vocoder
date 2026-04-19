@@ -14,3 +14,4 @@ calculate, or at worst are arbitrarily determined and require online resources r
 - Suppressing error messages from outdated modules (AI)
 - Occasional refactoring edits (AI)
 - Settings File (AI)
+- Mono menu button (AI, prompted to copy current human-made code)
