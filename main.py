@@ -484,6 +484,8 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_screen(app, 'choose_key',    app.button_choose_key)
             elif mouse_in_button(app, app.button_choose_scale, mouse_x, mouse_y):
                 change_screen(app, 'choose_scale',  app.button_choose_scale)
+            elif mouse_in_button(app, app.button_mono,         mouse_x, mouse_y):
+                change_screen(app, 'mono',          app.button_mono)
             elif mouse_in_button(app, app.button_vocoder,      mouse_x, mouse_y):
                 change_screen(app, 'vocoder',       app.button_vocoder)
 

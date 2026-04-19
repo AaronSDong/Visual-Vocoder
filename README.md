@@ -13,5 +13,7 @@ The following is a list of things that I did not do/received significant help fr
 calculate, or at worst are arbitrarily determined and require online resources regardless)
 - Suppressing error messages from outdated modules (AI)
 - Occasional refactoring edits (AI)
+- Partial edits to vocoder (AI)
+- Combination of Vocoder and Camera (AI)
 - Settings File (AI)
 - Mono menu button (AI, prompted to copy current human-made code)

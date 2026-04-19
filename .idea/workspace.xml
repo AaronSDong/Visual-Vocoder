@@ -4,19 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Vocoder settings menu created">
-      <change afterPath="$PROJECT_DIR$/.idea/PythonProject.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_11_2026_2_54_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_11_2026_2_54_PM__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_4_11_2026_2_55_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_4_11_2026_2_55_PM__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Camera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CameraVocoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/CameraVocoder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GetScale.py" beforeDir="false" afterPath="$PROJECT_DIR$/GetScale.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" beforeDir="false" afterPath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.txt" beforeDir="false" afterPath="$PROJECT_DIR$/settings.txt" afterDir="false" />
+    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Menus for keys, scales, and mono created">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -427,7 +416,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776498911065</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="Menus for keys, scales, and mono created">
+      <option name="closed" value="true" />
+      <created>1776586690927</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1776586690927</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -445,7 +442,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Handedness detectable, playability with one synth per hand" />
     <MESSAGE value="Wave.py bug fix" />
     <MESSAGE value="Wave.py bug fix v2 (hopefully the last)" />
     <MESSAGE value="Finger functionally primitively working" />
@@ -470,7 +466,8 @@
     <MESSAGE value="UI buttons drawn, saved settings" />
     <MESSAGE value="Vocoder created, added to camera" />
     <MESSAGE value="Vocoder settings menu created" />
-    <option name="LAST_COMMIT_MESSAGE" value="Vocoder settings menu created" />
+    <MESSAGE value="Menus for keys, scales, and mono created" />
+    <option name="LAST_COMMIT_MESSAGE" value="Menus for keys, scales, and mono created" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$SineWave.coverage" NAME="SineWave Coverage Results" MODIFIED="1774216872690" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
