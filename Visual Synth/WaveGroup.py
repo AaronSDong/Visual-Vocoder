@@ -1,5 +1,5 @@
 import Wave
-from GetScale import getScale
+from SettingsScript import getScale
 from ChorusSettings import ChorusSettings
 
 class WaveGroup:

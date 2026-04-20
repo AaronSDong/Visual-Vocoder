@@ -17,9 +17,7 @@ All UI elements are contained within 'main.py'
 from cmu_graphics import *
 from Camera import camera
 from CameraVocoder import camera as cameraVocoder
-from SettingsScript import load_settings, update_settings_file
-from GetScale import get_key, get_key_index, get_scale_index, get_scale_from_index
-
+from SettingsScript import *
 
 class Slider:
     def __init__(self, setting, setting_value, range_of_values, x_value, y_range):
@@ -63,8 +61,8 @@ def onAppStart(app):
     load_buttons(app)
     load_sliders(app)
 
-    app.bg_music = Sound('bgMusic.mp3')
-    #app.bg_music.play(restart=True, loop=True)
+    app.bg_music = Sound('assets\\bgMusic.mp3')
+    # app.bg_music.play(restart=True, loop=True)
     app.font = 'Pixelated Elegance'
 
 def load_buttons(app):
@@ -211,8 +209,18 @@ def load_buttons(app):
     app.button_enable_mono_off['color'] = app.button_enable_mono_off.get('color', 'red')
     app.button_enable_mono_off['hovered'] = app.button_enable_mono_off.get('hovered', False)
 
+    if not hasattr(app, 'button_choose_wave'): app.button_choose_wave = {}
+    app.button_choose_wave['cx'] = int(app.width * .5 - 106 / 2)
+    app.button_choose_wave['cy'] = int(app.height * .5) - 12
+    app.button_choose_wave['w'] = 104
+    app.button_choose_wave['h'] = 28
+    app.button_choose_wave['text'] = 'Wave'
+    app.button_choose_wave['size'] = 30
+    app.button_choose_wave['color'] = 'purple'
+    app.button_choose_wave['hovered'] = app.button_choose_wave.get('hovered', False)
+
     if not hasattr(app, 'button_vocoder'): app.button_vocoder = {}
-    app.button_vocoder['cx'] = int(app.width * .5 - 156/2)
+    app.button_vocoder['cx'] = int(app.width * .75 - 156/2)
     app.button_vocoder['cy'] = int(app.height * .5) - 12
     app.button_vocoder['w'] = 152
     app.button_vocoder['h'] = 28
@@ -251,15 +259,27 @@ def load_buttons(app):
     app.button_enable_vocoder_off['color'] = app.button_enable_vocoder_off.get('color', 'red')
     app.button_enable_vocoder_off['hovered'] = app.button_enable_vocoder_off.get('hovered', False)
 
+    if not hasattr(app, 'button_reset_to_defaults'): app.button_reset_to_defaults = {}
+    app.button_reset_to_defaults['cx'] = app.width - 194
+    app.button_reset_to_defaults['cy'] = app.height - 26
+    app.button_reset_to_defaults['w'] = 190
+    app.button_reset_to_defaults['h'] = 28
+    app.button_reset_to_defaults['text'] = 'Reset To Defaults'
+    app.button_reset_to_defaults['size'] = 15
+    app.button_reset_to_defaults['color'] = 'purple'
+    app.button_reset_to_defaults['hovered'] = app.button_reset_to_defaults.get('hovered', False)
+
     # if statements by AI
     app.button_list_title_screen =  [app.button_play, app.button_menu, app.button_how_to_play]
     app.button_list_menu =          [app.button_exit, app.button_chorus, app.button_choose_key, app.button_choose_scale,
-                                     app.button_mono, app.button_vocoder]
+                                     app.button_mono, app.button_choose_wave, app.button_vocoder,
+                                     app.button_reset_to_defaults]
     app.button_list_chorus_effect = [app.button_exit, app.button_test_wave]
     app.button_list_key =           [app.button_exit, app.button_increase_1, app.button_decrease_1]
     app.button_list_scale =         [app.button_exit, app.button_increase_1, app.button_decrease_1]
     app.button_list_mono =          [app.button_exit,
                                      app.button_enable_mono_on if app.enable_mono else app.button_enable_mono_off]
+    app.button_list_wave =          [app.button_exit, app.button_increase_1, app.button_decrease_1]
     app.button_list_vocoder =       [app.button_exit, app.button_test_vocoder,
                                      app.button_enable_vocoder_on if app.enable_vocoder
                                      else app.button_enable_vocoder_off]
@@ -289,6 +309,7 @@ def redrawAll(app):
         case 'choose_key':      draw_choose_key(app)
         case 'choose_scale':    draw_choose_scale(app)
         case 'mono':            draw_mono(app)
+        case 'choose_wave':     draw_choose_wave(app)
         case 'vocoder':         draw_vocoder(app)
         case 'how_to_play':     draw_how_to_play(app)
 
@@ -340,6 +361,16 @@ def draw_mono(app):
     drawLabel('Enable:', app.width//2 - 100, app.height//2, font=app.font, size=40)
 
     for button in app.button_list_mono:
+        draw_button(app, button)
+
+def draw_choose_wave(app):
+    draw_background(app)
+    drawLabel('Choose Wave', app.width//2, 100, font=app.font, size=60)
+
+    settings = load_settings()
+    drawLabel(settings['wave_shape'], app.width//2, int(app.height*.4), font=app.font, size=50)
+
+    for button in app.button_list_wave:
         draw_button(app, button)
 
 def draw_vocoder(app):
@@ -455,6 +486,7 @@ def onMouseMove(app, mouse_x, mouse_y):
         case 'choose_key':    hoverButton(app, app.button_list_key,           mouse_x, mouse_y)
         case 'choose_scale':  hoverButton(app, app.button_list_scale,         mouse_x, mouse_y)
         case 'mono':          hoverButton(app, app.button_list_mono,          mouse_x, mouse_y)
+        case 'choose_wave':   hoverButton(app, app.button_list_wave, mouse_x, mouse_y)
         case 'vocoder':       hoverButton(app, app.button_list_vocoder,       mouse_x, mouse_y)
         case 'how_to_play':   hoverButton(app, app.button_list_how_to_play,   mouse_x, mouse_y)
 
@@ -476,18 +508,23 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_screen(app, 'how_to_play', app.button_how_to_play)
 
         case 'menu_screen':
-            if   mouse_in_button(app, app.button_exit,         mouse_x, mouse_y):
+            if   mouse_in_button(app, app.button_exit,              mouse_x, mouse_y):
                 change_screen(app, 'title_screen',  app.button_exit)
-            elif mouse_in_button(app, app.button_chorus,       mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_chorus,            mouse_x, mouse_y):
                 change_screen(app, 'chorus_effect', app.button_chorus)
-            elif mouse_in_button(app, app.button_choose_key,   mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_choose_key,        mouse_x, mouse_y):
                 change_screen(app, 'choose_key',    app.button_choose_key)
-            elif mouse_in_button(app, app.button_choose_scale, mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_choose_scale,      mouse_x, mouse_y):
                 change_screen(app, 'choose_scale',  app.button_choose_scale)
-            elif mouse_in_button(app, app.button_mono,         mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_mono,              mouse_x, mouse_y):
                 change_screen(app, 'mono',          app.button_mono)
-            elif mouse_in_button(app, app.button_vocoder,      mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_vocoder,           mouse_x, mouse_y):
                 change_screen(app, 'vocoder',       app.button_vocoder)
+            elif mouse_in_button(app, app.button_choose_wave,       mouse_x, mouse_y):
+                change_screen(app, 'choose_wave', app.button_choose_wave)
+            elif mouse_in_button(app, app.button_reset_to_defaults, mouse_x, mouse_y):
+                app.button_reset_to_defaults['hovered'] = False
+                reset_settings_to_default()
 
         case 'chorus_effect':
             test_mouse_in_slider(app, app.chorus_sliders,   mouse_x, mouse_y)
@@ -527,6 +564,14 @@ def onMousePress(app, mouse_x, mouse_y):
                 update_settings_file('enable_mono', True)
                 app.button_list_mono.remove(app.button_enable_mono_off)
                 app.button_list_mono.append(app.button_enable_mono_on)
+
+        case 'choose_wave':
+            if mouse_in_button(app, app.button_exit, mouse_x, mouse_y):
+                change_screen(app, 'menu_screen', app.button_exit)
+            elif mouse_in_button(app, app.button_increase_1, mouse_x, mouse_y):
+                change_wave_shape(+1)
+            elif mouse_in_button(app, app.button_decrease_1, mouse_x, mouse_y):
+                change_wave_shape(-1)
 
         case 'vocoder':
             if   mouse_in_button(app, app.button_exit,               mouse_x, mouse_y):

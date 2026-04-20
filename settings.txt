@@ -1,9 +1,0 @@
-key=A
-scale=major
-enable_mono=False
-enable_vocoder=False
-chorus_bypass=False
-chorus_delay=14.25
-chorus_depth=15.34
-chorus_speed=0.85
-chorus_dry_wet=0.24

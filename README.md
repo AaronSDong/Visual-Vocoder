@@ -16,4 +16,5 @@ calculate, or at worst are arbitrarily determined and require online resources r
 - Partial edits to vocoder (AI)
 - Combination of Vocoder and Camera (AI)
 - Settings File (AI)
-- Mono menu button (AI, prompted to copy current human-made code)
+- Mono and Change Wave menu button (AI, prompted to copy current human-made code)
+- Reset Default settings function (AI)

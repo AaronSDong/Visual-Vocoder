@@ -8,12 +8,10 @@ class CreateWaveShape:
                             'square':
                             np.concatenate((np.ones(sample_rate//2), -np.ones(sample_rate//2))),
 
-                            # Noisy for some reason, check later
                             'triangle':
                                 np.concatenate((np.linspace(-1, 1, sample_rate//2, endpoint=False),
                                                 np.linspace(1, -1, sample_rate//2, endpoint=False)),),
 
-                            # Noisy for some reason, check later
                             'saw':
                                 np.linspace(-1, 1, sample_rate, endpoint=False)
                             }

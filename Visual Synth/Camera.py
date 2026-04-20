@@ -32,10 +32,11 @@ def camera():
     mpdraw = mp.solutions.drawing_utils
 
     settings = load_settings()
+    mono = True if settings['enable_mono'] == 'True' else False
     chorus = ChorusSettings(bypass=settings['chorus_bypass'], delay=settings['chorus_delay'],
                             depth=settings['chorus_depth'], speed=settings['chorus_speed'],
                             dry_wet=settings['chorus_dry_wet'])
-    wave_list = WaveGroup.WaveGroup(wave_shape='triangle', mono=True,
+    wave_list = WaveGroup.WaveGroup(wave_shape=settings['wave_shape'], mono=mono,
                                     scale=settings['scale'], key=settings['key'],
                                     max_vol=0, chorus=chorus)
 

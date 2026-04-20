@@ -1,0 +1,10 @@
+key=C
+scale=major
+wave_shape=triangle
+enable_mono=False
+enable_vocoder=False
+chorus_bypass=False
+chorus_delay=20
+chorus_depth=10
+chorus_speed=1.00
+chorus_dry_wet=0.50

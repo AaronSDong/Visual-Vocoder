@@ -4,8 +4,37 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Menus for keys, scales, and mono created">
+    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Mono bug fix">
+      <change afterPath="$PROJECT_DIR$/Visual Synth/default_settings.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Exit Button On.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Exit Button On.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Exit Button.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Exit Button.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/How To Play Button On.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/How To Play Button On.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/How To Play Button.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/How To Play Button.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Left Arrow On.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Left Arrow On.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Left Arrow.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Left Arrow.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Menu Button On.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Menu Button On.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Menu Button.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Menu Button.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Play Button On.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Play Button On.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Play Button.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Play Button.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Right Arrow On.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Right Arrow On.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Right Arrow.png" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/Right Arrow.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CameraVocoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/CameraVocoder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChorusSettings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/ChorusSettings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CreateWaveShape.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/CreateWaveShape.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DrySignal.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/DrySignal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GetScale.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/SettingsScript.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsScript.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SineWave.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/SineWave.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Wave.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Wave.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WaveGroup.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/WaveGroup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WaveSubGroup.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/WaveSubGroup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bgMusic.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Assets/bgMusic.mp3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/settings.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/vocoder.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +69,7 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/main.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Visual Synth/main.py" root0="SKIP_INSPECTION" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -50,45 +79,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.Camera.executor&quot;: &quot;Run&quot;,
-    &quot;Python.CameraVocoder.executor&quot;: &quot;Run&quot;,
-    &quot;Python.ChorusSettings.executor&quot;: &quot;Run&quot;,
-    &quot;Python.CreateWaveShape.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.DrySignal.executor&quot;: &quot;Run&quot;,
-    &quot;Python.SineWave.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Wave.executor&quot;: &quot;Run&quot;,
-    &quot;Python.WaveGroup.executor&quot;: &quot;Run&quot;,
-    &quot;Python.camera.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test2.executor&quot;: &quot;Run&quot;,
-    &quot;Python.vocoder.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;ai.playground.ignore.import.keys.banner.in.settings&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/anh11/PycharmProjects/PythonProject&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.Camera.executor": "Run",
+    "Python.CameraVocoder.executor": "Run",
+    "Python.ChorusSettings.executor": "Run",
+    "Python.CreateWaveShape.executor": "Debug",
+    "Python.DrySignal.executor": "Run",
+    "Python.SineWave.executor": "Run",
+    "Python.Wave.executor": "Run",
+    "Python.WaveGroup.executor": "Run",
+    "Python.camera.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.test.executor": "Run",
+    "Python.test2.executor": "Run",
+    "Python.vocoder.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ai.playground.ignore.import.keys.banner.in.settings": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/anh11/PycharmProjects/PythonProject/Visual Synth/Assets",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\anh11\PycharmProjects\PythonProject" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\anh11\PycharmProjects\PythonProject\Visual Synth\Assets" />
+      <recent name="C:\Users\anh11\PycharmProjects\PythonProject\Visual Synth" />
       <recent name="C:\Users\anh11\PycharmProjects\PythonProject\Images" />
     </key>
   </component>
@@ -424,7 +455,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776586690927</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="Mono bug fix">
+      <option name="closed" value="true" />
+      <created>1776587167259</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1776587167259</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -442,7 +481,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Wave.py bug fix" />
     <MESSAGE value="Wave.py bug fix v2 (hopefully the last)" />
     <MESSAGE value="Finger functionally primitively working" />
     <MESSAGE value="Optimized finger functionality, created WaveGroup class" />
@@ -467,7 +505,8 @@
     <MESSAGE value="Vocoder created, added to camera" />
     <MESSAGE value="Vocoder settings menu created" />
     <MESSAGE value="Menus for keys, scales, and mono created" />
-    <option name="LAST_COMMIT_MESSAGE" value="Menus for keys, scales, and mono created" />
+    <MESSAGE value="Mono bug fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Mono bug fix" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$SineWave.coverage" NAME="SineWave Coverage Results" MODIFIED="1774216872690" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

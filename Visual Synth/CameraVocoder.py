@@ -8,9 +8,8 @@ import threading
 import numpy as np
 import pyworld as pw
 import pyaudio
-from ChorusSettings import ChorusSettings
-from SettingsScript import load_settings
-from GetScale import getScale
+# from ChorusSettings import ChorusSettings
+from SettingsScript import load_settings, getScale
 import warnings
 
 warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')
