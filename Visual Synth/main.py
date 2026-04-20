@@ -60,6 +60,7 @@ def onAppStart(app):
     app.how_to_play_page_count = 7
     load_buttons(app)
     load_sliders(app)
+    load_edit_wave_grid(app)
 
     app.bg_music = Sound('assets\\bgMusic.mp3')
     # app.bg_music.play(restart=True, loop=True)
@@ -67,6 +68,8 @@ def onAppStart(app):
 
 def load_buttons(app):
     assets_folder = 'assets\\'
+    settings = load_settings()
+
     if not hasattr(app, 'button_play'): app.button_play = {}  # idea taken from AI
     app.button_play['cx'] = app.width//2 - 100
     app.button_play['cy'] = int(app.height * .4375)
@@ -152,19 +155,19 @@ def load_buttons(app):
     app.button_choose_key['hovered'] = app.button_choose_key.get('hovered', False)
 
     if not hasattr(app, 'button_decrease_1'): app.button_decrease_1 = {}
-    app.button_decrease_1['cx'] = app.width // 2 - 250
-    app.button_decrease_1['cy'] = app.height // 2 + 100
-    app.button_decrease_1['w'] = 200
-    app.button_decrease_1['h'] = 200
+    app.button_decrease_1['cx'] = app.width // 2 - 200
+    app.button_decrease_1['cy'] = app.height // 2 + 150
+    app.button_decrease_1['w'] = 150
+    app.button_decrease_1['h'] = 150
     app.button_decrease_1['image_off'] = assets_folder + 'Left Arrow.png'
     app.button_decrease_1['image_on'] = assets_folder + 'Left Arrow On.png'
     app.button_decrease_1['hovered'] = app.button_decrease_1.get('hovered', False)
 
     if not hasattr(app, 'button_increase_1'): app.button_increase_1 = {}
     app.button_increase_1['cx'] = app.width // 2 + 50
-    app.button_increase_1['cy'] = app.height // 2 + 100
-    app.button_increase_1['w'] = 200
-    app.button_increase_1['h'] = 200
+    app.button_increase_1['cy'] = app.height // 2 + 150
+    app.button_increase_1['w'] = 150
+    app.button_increase_1['h'] = 150
     app.button_increase_1['image_off'] = assets_folder + 'Right Arrow.png'
     app.button_increase_1['image_on'] = assets_folder + 'Right Arrow On.png'
     app.button_increase_1['hovered'] = app.button_increase_1.get('hovered', False)
@@ -219,6 +222,52 @@ def load_buttons(app):
     app.button_choose_wave['color'] = 'purple'
     app.button_choose_wave['hovered'] = app.button_choose_wave.get('hovered', False)
 
+    if not hasattr(app, 'button_edit_custom_wave'): app.button_edit_custom_wave = {}
+    app.button_edit_custom_wave['cx'] = app.width // 2 - 123
+    app.button_edit_custom_wave['cy'] = int(app.height * .57) - 8
+    app.button_edit_custom_wave['w'] = 246
+    app.button_edit_custom_wave['h'] = 22
+    app.button_edit_custom_wave['text'] = 'Edit Custom Wave'
+    app.button_edit_custom_wave['size'] = 20
+    app.button_edit_custom_wave['color'] = app.button_edit_custom_wave.get('color', 'red')
+    app.button_edit_custom_wave['hovered'] = app.button_edit_custom_wave.get('hovered', False)
+
+    if not hasattr(app, 'button_decrease_2'): app.button_decrease_2 = {}
+    app.button_decrease_2['cx'] = int(app.width*.25 - 75)
+    app.button_decrease_2['cy'] = int(app.height * .88)
+    app.button_decrease_2['w'] = 50
+    app.button_decrease_2['h'] = 50
+    app.button_decrease_2['image_off'] = assets_folder + 'Left Arrow.png'
+    app.button_decrease_2['image_on'] = assets_folder + 'Left Arrow On.png'
+    app.button_decrease_2['hovered'] = app.button_decrease_2.get('hovered', False)
+
+    if not hasattr(app, 'button_increase_2'): app.button_increase_2 = {}
+    app.button_increase_2['cx'] = int(app.width*.25 + 25)
+    app.button_increase_2['cy'] = int(app.height * .88)
+    app.button_increase_2['w'] = 50
+    app.button_increase_2['h'] = 50
+    app.button_increase_2['image_off'] = assets_folder + 'Right Arrow.png'
+    app.button_increase_2['image_on'] = assets_folder + 'Right Arrow On.png'
+    app.button_increase_2['hovered'] = app.button_increase_2.get('hovered', False)
+
+    if not hasattr(app, 'button_decrease_3'): app.button_decrease_3 = {}
+    app.button_decrease_3['cx'] = int(app.width*.75 - 75)
+    app.button_decrease_3['cy'] = int(app.height * .88)
+    app.button_decrease_3['w'] = 50
+    app.button_decrease_3['h'] = 50
+    app.button_decrease_3['image_off'] = assets_folder + 'Left Arrow.png'
+    app.button_decrease_3['image_on'] = assets_folder + 'Left Arrow On.png'
+    app.button_decrease_3['hovered'] = app.button_decrease_3.get('hovered', False)
+
+    if not hasattr(app, 'button_increase_3'): app.button_increase_3 = {}
+    app.button_increase_3['cx'] = int(app.width*.75 + 25)
+    app.button_increase_3['cy'] = int(app.height * .88)
+    app.button_increase_3['w'] = 50
+    app.button_increase_3['h'] = 50
+    app.button_increase_3['image_off'] = assets_folder + 'Right Arrow.png'
+    app.button_increase_3['image_on'] = assets_folder + 'Right Arrow On.png'
+    app.button_increase_3['hovered'] = app.button_increase_3.get('hovered', False)
+
     if not hasattr(app, 'button_vocoder'): app.button_vocoder = {}
     app.button_vocoder['cx'] = int(app.width * .75 - 156/2)
     app.button_vocoder['cy'] = int(app.height * .5) - 12
@@ -270,20 +319,24 @@ def load_buttons(app):
     app.button_reset_to_defaults['hovered'] = app.button_reset_to_defaults.get('hovered', False)
 
     # if statements by AI
-    app.button_list_title_screen =  [app.button_play, app.button_menu, app.button_how_to_play]
-    app.button_list_menu =          [app.button_exit, app.button_chorus, app.button_choose_key, app.button_choose_scale,
-                                     app.button_mono, app.button_choose_wave, app.button_vocoder,
-                                     app.button_reset_to_defaults]
-    app.button_list_chorus_effect = [app.button_exit, app.button_test_wave]
-    app.button_list_key =           [app.button_exit, app.button_increase_1, app.button_decrease_1]
-    app.button_list_scale =         [app.button_exit, app.button_increase_1, app.button_decrease_1]
-    app.button_list_mono =          [app.button_exit,
-                                     app.button_enable_mono_on if app.enable_mono else app.button_enable_mono_off]
-    app.button_list_wave =          [app.button_exit, app.button_increase_1, app.button_decrease_1]
-    app.button_list_vocoder =       [app.button_exit, app.button_test_vocoder,
-                                     app.button_enable_vocoder_on if app.enable_vocoder
-                                     else app.button_enable_vocoder_off]
-    app.button_list_how_to_play =   [app.button_exit, app.button_right, app.button_left]
+    app.button_list_title_screen =     [app.button_play, app.button_menu, app.button_how_to_play]
+    app.button_list_menu =             [app.button_exit, app.button_chorus, app.button_choose_key,
+                                        app.button_choose_scale, app.button_mono, app.button_choose_wave,
+                                        app.button_vocoder, app.button_reset_to_defaults]
+    app.button_list_chorus_effect =    [app.button_exit, app.button_test_wave]
+    app.button_list_key =              [app.button_exit, app.button_increase_1, app.button_decrease_1]
+    app.button_list_scale =            [app.button_exit, app.button_increase_1, app.button_decrease_1]
+    app.button_list_mono =             [app.button_exit,
+                                        app.button_enable_mono_on if app.enable_mono else app.button_enable_mono_off]
+    app.button_list_wave =             [app.button_exit, app.button_increase_1, app.button_decrease_1]
+    app.button_list_edit_custom_wave = [app.button_exit, app.button_increase_2, app.button_decrease_2,
+                                        app.button_increase_3, app.button_decrease_3]
+    app.button_list_vocoder =          [app.button_exit, app.button_test_vocoder,
+                                        app.button_enable_vocoder_on if app.enable_vocoder
+                                        else app.button_enable_vocoder_off]
+    app.button_list_how_to_play =      [app.button_exit, app.button_right, app.button_left]
+
+    if settings['wave_shape'] == 'custom': app.button_list_wave.append(app.button_edit_custom_wave)
 
 def load_sliders(app):
     app.slider_size = 30
@@ -301,17 +354,29 @@ def load_sliders(app):
 
     app.chorus_sliders = [chorus_delay_slider, chorus_depth_slider, chorus_speed_slider, chorus_dry_wet_slider]
 
+def load_edit_wave_grid(app):
+    app.edit_wave_grid_width = int(app.width * .8)
+    app.edit_wave_grid_height = int(app.height * .4)
+    app.edit_wave_grid_left = int(app.width * .1)
+    app.edit_wave_grid_top = int(app.height * .3)
+    app.edit_wave_grid_rows = 3
+    app.edit_wave_grid_cols = 6
+
+    app.edit_wave_drawn_points = []
+    app.edit_wave_curr_line = []
+
 def redrawAll(app):
     match app.screen:
-        case 'title_screen':    draw_title_screen(app)
-        case 'menu_screen':     draw_menu_screen(app)
-        case 'chorus_effect':   draw_chorus_effect(app)
-        case 'choose_key':      draw_choose_key(app)
-        case 'choose_scale':    draw_choose_scale(app)
-        case 'mono':            draw_mono(app)
-        case 'choose_wave':     draw_choose_wave(app)
-        case 'vocoder':         draw_vocoder(app)
-        case 'how_to_play':     draw_how_to_play(app)
+        case 'title_screen':     draw_title_screen(app)
+        case 'menu_screen':      draw_menu_screen(app)
+        case 'chorus_effect':    draw_chorus_effect(app)
+        case 'choose_key':       draw_choose_key(app)
+        case 'choose_scale':     draw_choose_scale(app)
+        case 'mono':             draw_mono(app)
+        case 'choose_wave':      draw_choose_wave(app)
+        case 'edit_custom_wave': draw_edit_custom_wave(app)
+        case 'vocoder':          draw_vocoder(app)
+        case 'how_to_play':      draw_how_to_play(app)
 
 def draw_title_screen(app):
     draw_background(app)
@@ -371,6 +436,47 @@ def draw_choose_wave(app):
     drawLabel(settings['wave_shape'], app.width//2, int(app.height*.4), font=app.font, size=50)
 
     for button in app.button_list_wave:
+        draw_button(app, button)
+
+def draw_edit_custom_wave(app):
+    draw_background(app)
+    drawLabel('Wave Editor', app.width//2, 100, font=app.font, size=60)
+    drawLabel(f'Grid X: {app.edit_wave_grid_cols}', int(app.width * .25), int(app.height * .84), font=app.font, size=30)
+    drawLabel(f'Grid Y: {app.edit_wave_grid_rows}', int(app.width * .75), int(app.height * .84), font=app.font, size=30)
+
+    # Grid variables
+    grid_width = app.edit_wave_grid_width
+    grid_height = app.edit_wave_grid_height
+    grid_left = app.edit_wave_grid_left
+    grid_top = app.edit_wave_grid_top
+
+    # Cell size
+    cell_width = grid_width / app.edit_wave_grid_cols
+    cell_height = grid_height / app.edit_wave_grid_rows
+    circle_size = min(cell_width, cell_height) * .25
+
+    # Draw boarder
+    drawRect(grid_left-1, grid_top-1, grid_width+2, grid_height+2, fill=None, border='black', borderWidth=1)
+
+    # Draw cell
+    for row in range(app.edit_wave_grid_rows):
+        for col in range(app.edit_wave_grid_cols):
+            cell_left = grid_left + (col * cell_width)
+            cell_top = grid_top + (row * cell_height)
+            drawRect(cell_left, cell_top, cell_width, cell_height, fill=None, border='grey', borderWidth=1)
+
+    # Draw grey circles
+    for row in range(app.edit_wave_grid_rows + 1):
+        for col in range(app.edit_wave_grid_cols + 1):
+            cell_left = grid_left + (col * cell_width)
+            cell_top = grid_top + (row * cell_height)
+            drawCircle(cell_left, cell_top, circle_size, fill='grey', opacity=50)
+
+    # Draw current line
+    if app.edit_wave_curr_line != []:
+        drawLine(*app.edit_wave_curr_line, fill='white', opacity=80, lineWidth=5)
+
+    for button in app.button_list_edit_custom_wave:
         draw_button(app, button)
 
 def draw_vocoder(app):
@@ -480,15 +586,16 @@ def draw_background(app):
 
 def onMouseMove(app, mouse_x, mouse_y):
     match app.screen:
-        case 'title_screen':  hoverButton(app, app.button_list_title_screen,  mouse_x, mouse_y)
-        case 'menu_screen':   hoverButton(app, app.button_list_menu,          mouse_x, mouse_y)
-        case 'chorus_effect': hoverButton(app, app.button_list_chorus_effect, mouse_x, mouse_y)
-        case 'choose_key':    hoverButton(app, app.button_list_key,           mouse_x, mouse_y)
-        case 'choose_scale':  hoverButton(app, app.button_list_scale,         mouse_x, mouse_y)
-        case 'mono':          hoverButton(app, app.button_list_mono,          mouse_x, mouse_y)
-        case 'choose_wave':   hoverButton(app, app.button_list_wave, mouse_x, mouse_y)
-        case 'vocoder':       hoverButton(app, app.button_list_vocoder,       mouse_x, mouse_y)
-        case 'how_to_play':   hoverButton(app, app.button_list_how_to_play,   mouse_x, mouse_y)
+        case 'title_screen':     hoverButton(app, app.button_list_title_screen,     mouse_x, mouse_y)
+        case 'menu_screen':      hoverButton(app, app.button_list_menu,             mouse_x, mouse_y)
+        case 'chorus_effect':    hoverButton(app, app.button_list_chorus_effect,    mouse_x, mouse_y)
+        case 'choose_key':       hoverButton(app, app.button_list_key,              mouse_x, mouse_y)
+        case 'choose_scale':     hoverButton(app, app.button_list_scale,            mouse_x, mouse_y)
+        case 'mono':             hoverButton(app, app.button_list_mono,             mouse_x, mouse_y)
+        case 'choose_wave':      hoverButton(app, app.button_list_wave,             mouse_x, mouse_y)
+        case 'edit_custom_wave': hoverButton(app, app.button_list_edit_custom_wave, mouse_x, mouse_y)
+        case 'vocoder':          hoverButton(app, app.button_list_vocoder,          mouse_x, mouse_y)
+        case 'how_to_play':      hoverButton(app, app.button_list_how_to_play,      mouse_x, mouse_y)
 
 def hoverButton(app, button_list, mouse_x, mouse_y):
     for button in button_list:
@@ -552,9 +659,9 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_scale(-1)
 
         case 'mono':
-            if mouse_in_button(app, app.button_exit, mouse_x, mouse_y):
+            if   mouse_in_button(app, app.button_exit,              mouse_x, mouse_y):
                 change_screen(app, 'menu_screen', app.button_exit)
-            elif mouse_in_button(app, app.button_enable_mono_on, mouse_x, mouse_y) and app.enable_mono:
+            elif mouse_in_button(app, app.button_enable_mono_on,  mouse_x, mouse_y) and app.enable_mono:
                 app.enable_mono = False
                 update_settings_file('enable_mono', False)
                 app.button_list_mono.remove(app.button_enable_mono_on)
@@ -566,12 +673,32 @@ def onMousePress(app, mouse_x, mouse_y):
                 app.button_list_mono.append(app.button_enable_mono_on)
 
         case 'choose_wave':
-            if mouse_in_button(app, app.button_exit, mouse_x, mouse_y):
-                change_screen(app, 'menu_screen', app.button_exit)
-            elif mouse_in_button(app, app.button_increase_1, mouse_x, mouse_y):
+            if   mouse_in_button(app, app.button_exit,             mouse_x, mouse_y):
+                change_screen(app, 'menu_screen',      app.button_exit)
+            elif mouse_in_button(app, app.button_edit_custom_wave, mouse_x, mouse_y):
+                change_screen(app, 'edit_custom_wave', app.button_edit_custom_wave)
+            elif mouse_in_button(app, app.button_increase_1,       mouse_x, mouse_y):
                 change_wave_shape(+1)
-            elif mouse_in_button(app, app.button_decrease_1, mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_decrease_1,       mouse_x, mouse_y):
                 change_wave_shape(-1)
+
+        case 'edit_custom_wave':
+            if   mouse_in_button(app, app.button_exit,       mouse_x, mouse_y):
+                change_screen(app, 'menu_screen', app.button_exit)
+            elif mouse_in_button(app, app.button_decrease_2, mouse_x, mouse_y):
+                if app.edit_wave_grid_cols == 1: return
+                app.edit_wave_grid_cols -= 1
+            elif mouse_in_button(app, app.button_increase_2, mouse_x, mouse_y):
+                if app.edit_wave_grid_cols == 16: return
+                app.edit_wave_grid_cols += 1
+            elif mouse_in_button(app, app.button_decrease_3, mouse_x, mouse_y):
+                if app.edit_wave_grid_rows == 1: return
+                app.edit_wave_grid_rows -= 1
+            elif mouse_in_button(app, app.button_increase_3, mouse_x, mouse_y):
+                if app.edit_wave_grid_rows == 8: return
+                app.edit_wave_grid_rows += 1
+            else:
+                edit_wave_check_in_point(app, mouse_x, mouse_y)
 
         case 'vocoder':
             if   mouse_in_button(app, app.button_exit,               mouse_x, mouse_y):
@@ -633,17 +760,39 @@ def change_scale(change):
     new_scale = get_scale_from_index(new_scale_index)
     update_settings_file('scale', new_scale)
 
+def edit_wave_check_in_point(app, mouse_x, mouse_y):
+    # Grid variables
+    grid_width = app.edit_wave_grid_width
+    grid_height = app.edit_wave_grid_height
+    grid_left = app.edit_wave_grid_left
+    grid_top = app.edit_wave_grid_top
+
+    # Cell size
+    cell_width = grid_width / app.edit_wave_grid_cols
+    cell_height = grid_height / app.edit_wave_grid_rows
+    circle_size = min(cell_width, cell_height) * .25
+
+    for row in range(app.edit_wave_grid_rows + 1):
+        for col in range(app.edit_wave_grid_cols + 1):
+            if distance(mouse_x, mouse_y, col*cell_width + grid_left, row*cell_height + grid_top) <= circle_size:
+                app.edit_wave_curr_line = [col*cell_width + grid_left, row*cell_height + grid_top, mouse_x, mouse_y]
+
 def onMouseDrag(app, mouse_x, mouse_y):
     match app.screen:
         case 'chorus_effect':
             for slider in app.chorus_sliders:
                 if slider.clicked_on: slider.update_y_value(mouse_y)
+        case 'edit_custom_wave':
+            if app.edit_wave_curr_line == []: return
+            app.edit_wave_curr_line = app.edit_wave_curr_line[:2] + [mouse_x, mouse_y]
 
 def onMouseRelease(app, mouse_x, mouse_y):
     match app.screen:
         case 'chorus_effect':
             for slider in app.chorus_sliders:
                 slider.clicked_on = False
+        case 'edit_custom_wave':
+            app.edit_wave_curr_line = []
 
 def onStep(app):
     load_buttons(app)
