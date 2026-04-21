@@ -10,29 +10,6 @@ import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')  # AI
 TEXT_COLOR = (199, 66, 193)
 
-def calculate_fps(prev_time, frame):  # AI
-    current_time = time.time()
-    fps = 1 / (current_time - prev_time)
-    prev_time = current_time
-
-    fps_text = f"FPS: {fps:.0f}"
-    cv.putText(frame, fps_text, (860, 20), cv.FONT_HERSHEY_SIMPLEX, .8, TEXT_COLOR, 2)
-    return prev_time
-
-
-def overlay_image(frame, overlay_path, size=(60, 60)):  # AI
-    overlay = cv.imread(overlay_path, cv.IMREAD_UNCHANGED)
-    overlay = cv.resize(overlay, size)
-    h, w = overlay.shape[:2]
-
-    # Handle transparency (PNG with alpha channel)
-    if overlay.shape[2] == 4:
-        alpha = overlay[:, :, 3:] / 255.0
-        overlay_rgb = overlay[:, :, :3]
-        frame[:h, :w] = (alpha * overlay_rgb + (1 - alpha) * frame[:h, :w]).astype('uint8')
-    else:
-        frame[:h, :w] = overlay
-
 def camera():
     prev_time = 0  # To calculate FPS
     mirrored_camera = True
@@ -141,6 +118,29 @@ def draw_ui(wave_list, frame, prev_time):
 
     prev_time = calculate_fps(prev_time, frame)
     return frame, prev_time
+
+def calculate_fps(prev_time, frame):  # AI
+    current_time = time.time()
+    fps = 1 / (current_time - prev_time)
+    prev_time = current_time
+
+    fps_text = f"FPS: {fps:.0f}"
+    cv.putText(frame, fps_text, (860, 20), cv.FONT_HERSHEY_SIMPLEX, .8, TEXT_COLOR, 2)
+    return prev_time
+
+
+def overlay_image(frame, overlay_path, size=(60, 60)):  # AI
+    overlay = cv.imread(overlay_path, cv.IMREAD_UNCHANGED)
+    overlay = cv.resize(overlay, size)
+    h, w = overlay.shape[:2]
+
+    # Handle transparency (PNG with alpha channel)
+    if overlay.shape[2] == 4:
+        alpha = overlay[:, :, 3:] / 255.0
+        overlay_rgb = overlay[:, :, :3]
+        frame[:h, :w] = (alpha * overlay_rgb + (1 - alpha) * frame[:h, :w]).astype('uint8')
+    else:
+        frame[:h, :w] = overlay
 
 def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
     result = hands.process(frame)

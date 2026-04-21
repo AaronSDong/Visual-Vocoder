@@ -359,7 +359,8 @@ def load_edit_wave_grid(app):
     app.edit_wave_grid_rows = 3
     app.edit_wave_grid_cols = 6
 
-    app.edit_wave_drawn_points = []
+    # Current implementation is wrong, create the wave shape (np array) and directly update it, then draw it
+    # app.edit_wave_drawn_points = []
     app.edit_wave_curr_line = []
 
 def update_edit_wave_grid(app):
@@ -444,6 +445,10 @@ def draw_choose_wave(app):
 def draw_edit_custom_wave(app):
     draw_background(app)
     drawLabel('Wave Editor', app.width//2, 100, font=app.font, size=60)
+    for button in app.button_list_edit_custom_wave:
+        draw_button(app, button)
+
+    # Grid incrementors
     drawLabel(f'Grid X: {app.edit_wave_grid_cols}', int(app.width * .25), int(app.height * .84), font=app.font, size=30)
     drawLabel(f'Grid Y: {app.edit_wave_grid_rows}', int(app.width * .75), int(app.height * .84), font=app.font, size=30)
 
@@ -454,9 +459,7 @@ def draw_edit_custom_wave(app):
     grid_top = app.edit_wave_grid_top
 
     # Cell size
-    cell_width = grid_width / app.edit_wave_grid_cols
-    cell_height = grid_height / app.edit_wave_grid_rows
-    circle_size = min(cell_width, cell_height) * .25
+    cell_width, cell_height, circle_size = get_cell_size(app)
 
     # Draw boarder
     drawRect(grid_left-1, grid_top-1, grid_width+2, grid_height+2, fill=None, border='black', borderWidth=1)
@@ -479,8 +482,19 @@ def draw_edit_custom_wave(app):
     if app.edit_wave_curr_line != []:
         drawLine(*app.edit_wave_curr_line, fill='white', opacity=80, lineWidth=5)
 
-    for button in app.button_list_edit_custom_wave:
-        draw_button(app, button)
+    # Draw all points connected, Current implementation is wrong
+    # for i in range(len(app.edit_wave_drawn_points) - 1):
+        # Current implementation is wrong
+        # drawLine(app.edit_wave_drawn_points[i][0] * app.width, app.edit_wave_drawn_points[i][1] * app.height,
+        #          app.edit_wave_drawn_points[i+1][0] * app.width, app.edit_wave_drawn_points[i+1][1] * app.height,
+        #          fill='white', lineWidth=5)
+
+def get_cell_size(app):
+    cell_width = app.edit_wave_grid_width / app.edit_wave_grid_cols
+    cell_height = app.edit_wave_grid_height / app.edit_wave_grid_rows
+    circle_size = min(cell_width, cell_height) * .25
+
+    return cell_width, cell_height, circle_size
 
 def draw_vocoder(app):
     draw_background(app)
@@ -701,7 +715,8 @@ def onMousePress(app, mouse_x, mouse_y):
                 if app.edit_wave_grid_rows == 8: return
                 app.edit_wave_grid_rows += 1
             else:
-                edit_wave_check_in_point(app, mouse_x, mouse_y)
+                x0, y0 = edit_wave_check_in_point(app, mouse_x, mouse_y)
+                if x0 is not None: app.edit_wave_curr_line = [x0, y0, mouse_x, mouse_y]
 
         case 'vocoder':
             if   mouse_in_button(app, app.button_exit,               mouse_x, mouse_y):
@@ -771,14 +786,14 @@ def edit_wave_check_in_point(app, mouse_x, mouse_y):
     grid_top = app.edit_wave_grid_top
 
     # Cell size
-    cell_width = grid_width / app.edit_wave_grid_cols
-    cell_height = grid_height / app.edit_wave_grid_rows
-    circle_size = min(cell_width, cell_height) * .25
+    cell_width, cell_height, circle_size = get_cell_size(app)
 
     for row in range(app.edit_wave_grid_rows + 1):
         for col in range(app.edit_wave_grid_cols + 1):
             if distance(mouse_x, mouse_y, col*cell_width + grid_left, row*cell_height + grid_top) <= circle_size:
-                app.edit_wave_curr_line = [col*cell_width + grid_left, row*cell_height + grid_top, mouse_x, mouse_y]
+                return col*cell_width + grid_left, row*cell_height + grid_top
+
+    return None, None
 
 def onMouseDrag(app, mouse_x, mouse_y):
     match app.screen:
@@ -795,6 +810,15 @@ def onMouseRelease(app, mouse_x, mouse_y):
             for slider in app.chorus_sliders:
                 slider.clicked_on = False
         case 'edit_custom_wave':
+            cell_width, cell_height, circle_size = get_cell_size(app)
+            x1, y1 = edit_wave_check_in_point(app, mouse_x, mouse_y)
+
+            if (app.edit_wave_curr_line != [] and x1 is not None and
+                distance(app.edit_wave_curr_line[0], app.edit_wave_curr_line[1], mouse_x, mouse_y) > circle_size):
+                pass  # current implementation is wrong
+                # app.edit_wave_drawn_points += [(app.edit_wave_curr_line[0] / app.width,
+                #                                 app.edit_wave_curr_line[1] / app.height),
+                #                                (x1 / app.width, y1 / app.height)]
             app.edit_wave_curr_line = []
 
 def onStep(app):

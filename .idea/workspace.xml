@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Worked on custom wave page">
+    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Updated Camera UI">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Visual Synth/Camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Camera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Visual Synth/WaveGroup.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/WaveGroup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Visual Synth/default_settings.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/default_settings.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Visual Synth/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Visual Synth/settings.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/settings.txt" afterDir="false" />
     </list>
@@ -457,7 +454,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776673079245</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="Updated Camera UI">
+      <option name="closed" value="true" />
+      <created>1776749043540</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1776749043540</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -475,7 +480,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Optimized finger functionality, created WaveGroup class" />
     <MESSAGE value="Volume easing, better note detection" />
     <MESSAGE value="File rename" />
     <MESSAGE value="Volume changing implemented, stereo audio added, notes adjusted to justly intonated C4 Major scale" />
@@ -500,7 +504,8 @@
     <MESSAGE value="Mono bug fix" />
     <MESSAGE value="Moved files, added change wave button, added reset to defaults button" />
     <MESSAGE value="Worked on custom wave page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Worked on custom wave page" />
+    <MESSAGE value="Updated Camera UI" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated Camera UI" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$SineWave.coverage" NAME="SineWave Coverage Results" MODIFIED="1774216872690" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
