@@ -3,27 +3,42 @@ import time
 import mediapipe as mp
 import WaveGroup
 from ChorusSettings import ChorusSettings
-from SettingsScript import load_settings
+from SettingsScript import load_settings, get_key, get_key_index
 
 import warnings
 
 warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')  # AI
+TEXT_COLOR = (199, 66, 193)
 
-def calculate_fps(prev_time, frame):
-    # All of this function is AI
+def calculate_fps(prev_time, frame):  # AI
     current_time = time.time()
     fps = 1 / (current_time - prev_time)
     prev_time = current_time
 
     fps_text = f"FPS: {fps:.0f}"
-    cv.putText(frame, fps_text, (10, 30), cv.FONT_HERSHEY_SIMPLEX, .5, (0, 255, 0), 2)
+    cv.putText(frame, fps_text, (860, 20), cv.FONT_HERSHEY_SIMPLEX, .8, TEXT_COLOR, 2)
     return prev_time
 
+
+def overlay_image(frame, overlay_path, size=(60, 60)):  # AI
+    overlay = cv.imread(overlay_path, cv.IMREAD_UNCHANGED)
+    overlay = cv.resize(overlay, size)
+    h, w = overlay.shape[:2]
+
+    # Handle transparency (PNG with alpha channel)
+    if overlay.shape[2] == 4:
+        alpha = overlay[:, :, 3:] / 255.0
+        overlay_rgb = overlay[:, :, :3]
+        frame[:h, :w] = (alpha * overlay_rgb + (1 - alpha) * frame[:h, :w]).astype('uint8')
+    else:
+        frame[:h, :w] = overlay
+
 def camera():
+    prev_time = 0  # To calculate FPS
     mirrored_camera = True
     cap = cv.VideoCapture(0)  # this is from documentation
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, 300)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 360)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, 900)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
     cap.set(cv.CAP_PROP_FPS, 30)
 
     mphands = mp.solutions.hands  # this chunk is taken from documentation (mostly)
@@ -33,25 +48,20 @@ def camera():
 
     settings = load_settings()
     mono = True if settings['enable_mono'] == 'True' else False
-    chorus = ChorusSettings(bypass=settings['chorus_bypass'], delay=settings['chorus_delay'],
+    chorus_bypass = True if settings['chorus_bypass'] == 'True' else False
+    chorus = ChorusSettings(bypass=chorus_bypass, delay=settings['chorus_delay'],
                             depth=settings['chorus_depth'], speed=settings['chorus_speed'],
                             dry_wet=settings['chorus_dry_wet'])
     wave_list = WaveGroup.WaveGroup(wave_shape=settings['wave_shape'], mono=mono,
                                     scale=settings['scale'], key=settings['key'],
                                     max_vol=0, chorus=chorus)
 
-    # Debugging
-    prev_time = 0
-
     while True:
         _, frame = cap.read()  # documentation
 
         if mirrored_camera: frame = cv.flip(frame, 1)
-        prev_time = calculate_fps(prev_time, frame)
-        cv.putText(frame, 'press q to exit', (10, 50),
-                   cv.FONT_HERSHEY_SIMPLEX, .5, (0, 255, 0), 2)
         process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera)
-        # frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)  # Grey Scale
+        frame, prev_time = draw_ui(wave_list, frame, prev_time)
 
         cv.imshow('frame', frame)
         if cv.waitKey(1) == ord('q'):  # Exit key, AI
@@ -61,6 +71,76 @@ def camera():
     cap.release()
     cv.destroyAllWindows()
     wave_list.stop_all()
+
+def draw_ui(wave_list, frame, prev_time):
+    # UI background
+    overlay_image(frame, 'Assets\\Button Background.png', (300, 150))
+    cv.putText(frame, '----Press q to exit----', (40, 32),
+               cv.FONT_HERSHEY_SIMPLEX, .5, TEXT_COLOR, 1)
+
+    # Volume elements
+    vol_left  = wave_list.vol_left
+    vol_right = wave_list.vol_right
+    cv.putText(frame, f'Left Volume = {vol_left*100:.1f}%',   (25, 50),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+    cv.putText(frame, f'Right Volume = {vol_right*100:.1f}%', (25, 65),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+
+    # Chorus elements
+    chorus = wave_list.chorus
+    if chorus.bypass:
+        cv.putText(frame, f'Chorus Delay: BYPASSED',   (145, 50),
+                   cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+        cv.putText(frame, f'Chorus Depth: BYPASSED',   (145, 65),
+                   cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+        cv.putText(frame, f'Chorus Speed: BYPASSED',   (145, 80),
+                   cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+        cv.putText(frame, f'Chorus Dry-Wet: BYPASSED', (145, 95),
+                   cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+    else:
+        cv.putText(frame, f'Chorus Delay: {chorus.delay_ms:.1f}ms',     (145, 50),
+                   cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+        cv.putText(frame, f'Chorus Depth: {chorus.depth_ms:.1f}ms',     (145, 65),
+                   cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+        cv.putText(frame, f'Chorus Speed: {chorus.speed_hz:.1f}Hz',     (145, 80),
+                   cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+        cv.putText(frame, f'Chorus Dry-Wet: {chorus.dry_wet*100:.1f}%', (145, 95),
+                   cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+
+    # Notes played
+    active_wave_indices = []
+    for i in range(len(wave_list.active_waves)):
+        if wave_list.active_waves[i] != 0: active_wave_indices.append(i)
+
+    # Grab frequencies in the chromatic scale of the key
+    settings = load_settings()
+    frequencies_in_C = [256.0, 273.07, 288.0, 307.2, 320.0, 341.33,
+                        364.44, 384.0, 409.6, 426.67, 455.11, 480.0, 512.0]  # C4=256 just intonation (AI)
+    key_shift = get_key_index(settings['key'])
+    freq_shift = 2 ** (key_shift / 12)
+    frequencies = [f * freq_shift for f in frequencies_in_C]
+
+    # Turn the list into a range from C4 to C5 (256 to 512 Hz)
+    frequencies_played = [float(wave_list.scale[i]) for i in active_wave_indices]
+    for i in range(len(frequencies_played)):
+        while not frequencies_played[i] <= frequencies[-1]: frequencies_played[i] = frequencies_played[i] / 2
+        while not frequencies_played[i] >= frequencies[0]:  frequencies_played[i] = frequencies_played[i] * 2
+
+    # Grab the notes played
+    notes_played = ''
+    for frequency in frequencies_played:
+        for i in range(len(frequencies)):
+            if abs(frequency - frequencies[i]) <= 2:
+                note = get_key((i + key_shift) % 12)
+                notes_played += f'{note}, '
+                break
+    notes_played = notes_played[:-2]
+
+    cv.putText(frame, f'Notes playing: {notes_played}', (25, 120),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+
+    prev_time = calculate_fps(prev_time, frame)
+    return frame, prev_time
 
 def process_hands(frame, hands, mphands, mpdraw, wave_list, mirrored_camera):
     result = hands.process(frame)
@@ -222,11 +302,11 @@ def get_maps(handedness):
 
     tolerances = {
         **{i: None for i in range(21)},
-        4:  [0.3, .30, 1.6],  # thumb
-        8:  [0.38, .40, 1.7],  # index
-        12: [0.40, .50, 1.5],  # middle
-        16: [0.40, .40, 1.6],  # ring
-        20: [0.40, .30, 1.5],  # pinky
+        4:  [0.35, .30, 1.6],  # thumb
+        8:  [0.42, .40, 1.7],  # index
+        12: [0.44, .50, 1.5],  # middle
+        16: [0.44, .40, 1.6],  # ring
+        20: [0.44, .30, 1.5],  # pinky
     }
 
     if handedness == 'Left':

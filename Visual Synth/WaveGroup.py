@@ -6,8 +6,11 @@ class WaveGroup:
     def __init__(self, f_list=None, wave_shape='sine', mono=True, octave=2, key='C', scale='major', max_vol=1,
                  chorus=ChorusSettings()):
         self.octave_set_buffer = [octave, 3]  # first value is attempted octave, second is frames to buffer
-        self.chorus_hand = 'left'
+        self.chorus = chorus
+        self.chorus_hand = 'left'  # hardcoded to be your left hand
         self.chorus_bypass = False
+        self.vol_left  = max_vol
+        self.vol_right = max_vol
 
         self.octave_shift = octave
         self.octave_multiplier = (octave + 2) - 4  # Translate octave where the 2nd octave is equal to C4
@@ -20,7 +23,7 @@ class WaveGroup:
         else:
             self.f_list = f_list  # Custom chosen notes
 
-        self.active_waves = [3 for _ in range(len(self.f_list))]  # 3 represents counter till deactivation
+        self.active_waves = [0 for _ in range(len(self.f_list))]  # 3 represents counter till deactivation
         self.wave_list = []
 
         for freq in self.f_list:
@@ -45,6 +48,10 @@ class WaveGroup:
             if self.octave_set_buffer[1] == 0: self._internal_adjust_octave(new_octave)
 
     def set_vol_all(self, volume, channel='mono'):
+        if volume < 0: volume = 0
+        if channel.lower() != 'right': self.vol_left  = volume
+        if channel.lower() != 'left':  self.vol_right = volume
+
         for wave in self.wave_list:
             wave.set_volume(volume, channel=channel)
 
@@ -66,6 +73,7 @@ class WaveGroup:
         self.shift_freq()
 
     def update_chorus(self, chorus):
+        self.chorus = chorus
         for wave in self.wave_list:
             wave.update_chorus_settings(chorus)
 

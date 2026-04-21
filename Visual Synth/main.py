@@ -61,6 +61,7 @@ def onAppStart(app):
     load_buttons(app)
     load_sliders(app)
     load_edit_wave_grid(app)
+    update_edit_wave_grid(app)
 
     app.bg_music = Sound('assets\\bgMusic.mp3')
     # app.bg_music.play(restart=True, loop=True)
@@ -355,15 +356,17 @@ def load_sliders(app):
     app.chorus_sliders = [chorus_delay_slider, chorus_depth_slider, chorus_speed_slider, chorus_dry_wet_slider]
 
 def load_edit_wave_grid(app):
-    app.edit_wave_grid_width = int(app.width * .8)
-    app.edit_wave_grid_height = int(app.height * .4)
-    app.edit_wave_grid_left = int(app.width * .1)
-    app.edit_wave_grid_top = int(app.height * .3)
     app.edit_wave_grid_rows = 3
     app.edit_wave_grid_cols = 6
 
     app.edit_wave_drawn_points = []
     app.edit_wave_curr_line = []
+
+def update_edit_wave_grid(app):
+    app.edit_wave_grid_width = int(app.width * .8)
+    app.edit_wave_grid_height = int(app.height * .4)
+    app.edit_wave_grid_left = int(app.width * .1)
+    app.edit_wave_grid_top = int(app.height * .3)
 
 def redrawAll(app):
     match app.screen:
@@ -796,6 +799,7 @@ def onMouseRelease(app, mouse_x, mouse_y):
 
 def onStep(app):
     load_buttons(app)
+    update_edit_wave_grid(app)
 
     update_slider_flag = True
     for slider in app.chorus_sliders:

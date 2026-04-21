@@ -4,7 +4,7 @@ https://www.fontspace.com/pixelated-elegance-font-f126145
 
 The following is a list of things that I did not do/received significant help from an online source:
 
-- FPS function is entirely taken from AI
+- FPS and Overlay function is entirely taken from AI
 - Initializing objects that are not mine (likely taken from documentation)
 - Fundamental infrastructure regarding OpenCV, MediaPipe, and PyAudio (documentation / AI)
 - Implementation of mpdraw.draw_landmarks (edited from documentation)

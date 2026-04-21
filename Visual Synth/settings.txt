@@ -1,4 +1,4 @@
-key=C
+key=A
 scale=major
 wave_shape=custom
 enable_mono=False
