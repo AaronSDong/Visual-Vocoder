@@ -19,6 +19,7 @@ from Camera import camera
 from CameraVocoder import camera as cameraVocoder
 from SettingsScript import *
 from CreateWaveShape import CreateWaveShape
+from random import randint
 
 class Slider:
     def __init__(self, setting, setting_value, range_of_values, x_value, y_range):
@@ -64,8 +65,8 @@ def onAppStart(app):
     load_edit_wave_grid(app)
     update_edit_wave_grid(app)
 
+    app.play_sound_cooldown = 10
     app.bg_music = Sound('assets\\bgMusic.mp3')
-    # app.bg_music.play(restart=True, loop=True)
     app.font = 'Pixelated Elegance'
 
 def load_buttons(app):
@@ -215,7 +216,7 @@ def load_buttons(app):
     app.button_enable_mono_off['hovered'] = app.button_enable_mono_off.get('hovered', False)
 
     if not hasattr(app, 'button_choose_wave'): app.button_choose_wave = {}
-    app.button_choose_wave['cx'] = int(app.width * .5 - 126 / 2)
+    app.button_choose_wave['cx'] = int(app.width * .5 - 111 / 2)
     app.button_choose_wave['cy'] = int(app.height * .5) - 12
     app.button_choose_wave['w'] = 124
     app.button_choose_wave['h'] = 76
@@ -330,11 +331,21 @@ def load_buttons(app):
     app.button_reset_to_defaults['color'] = 'purple'
     app.button_reset_to_defaults['hovered'] = app.button_reset_to_defaults.get('hovered', False)
 
+    if not hasattr(app, 'button_secret_music'): app.button_secret_music = {}
+    app.button_secret_music['cx'] = 10
+    app.button_secret_music['cy'] = app.height - 26
+    app.button_secret_music['w'] = 140
+    app.button_secret_music['h'] = 28
+    app.button_secret_music['text'] = 'Secret Music'
+    app.button_secret_music['size'] = 15
+    app.button_secret_music['color'] = app.button_secret_music.get('color', None)
+    app.button_secret_music['hovered'] = app.button_secret_music.get('hovered', False)
+
     # if statements by AI
     app.button_list_title_screen =     [app.button_play, app.button_menu, app.button_how_to_play]
     app.button_list_menu =             [app.button_exit, app.button_chorus, app.button_choose_key,
                                         app.button_choose_scale, app.button_mono, app.button_choose_wave,
-                                        app.button_vocoder, app.button_reset_to_defaults]
+                                        app.button_vocoder, app.button_reset_to_defaults, app.button_secret_music]
     app.button_list_chorus_effect =    [app.button_exit, app.button_test_wave]
     app.button_list_key =              [app.button_exit, app.button_increase_1, app.button_decrease_1]
     app.button_list_scale =            [app.button_exit, app.button_increase_1, app.button_decrease_1]
@@ -615,10 +626,15 @@ def draw_button(app, button):
     # Text buttons
     else:
         color = 'cyan' if button['hovered'] else button['color']
+
+        # Secret button stuff
+        opacity = 100 if color is not None else 0
+        if color is None: color = 'black'
+
         for i in range(len(button['text'].splitlines())):
             line = button['text'].splitlines()[i]
             drawLabel(line, button['cx'], button['cy'] + button['size']*1.5*i,
-                      size=button['size'], font=app.font, fill=color, align='top-left')
+                      size=button['size'], font=app.font, fill=color, opacity=opacity, align='top-left')
 
 def draw_background(app):
     drawRect(0, 0, app.width, app.height, fill='pink')
@@ -638,12 +654,21 @@ def onMouseMove(app, mouse_x, mouse_y):
 
 def hoverButton(app, button_list, mouse_x, mouse_y):
     for button in button_list:
-        button['hovered'] = mouse_in_button(app, button, mouse_x, mouse_y)
+        flag = mouse_in_button(app, button, mouse_x, mouse_y)
+        if flag and not button['hovered'] and app.play_sound_cooldown == 0:  # make sure it is the first time hovering
+            app.play_sound_cooldown = 10
+            hover_sounds = ['assets\\Hover 1.wav', 'assets\\Hover 2.wav', 'assets\\Hover 3.wav', 'assets\\Hover 4.wav',
+                            'assets\\Hover 5.wav']
+            sfx = Sound(hover_sounds[randint(0, len(hover_sounds) - 1)])
+            sfx.play()
+
+        button['hovered'] = flag
 
 def onMousePress(app, mouse_x, mouse_y):
     match app.screen:
         case 'title_screen':
             if   mouse_in_button(app, app.button_play, mouse_x, mouse_y):
+                play_click_sound(app)
                 if app.enable_vocoder:
                     cameraVocoder()
                 else:
@@ -669,8 +694,11 @@ def onMousePress(app, mouse_x, mouse_y):
             elif mouse_in_button(app, app.button_choose_wave,       mouse_x, mouse_y):
                 change_screen(app, 'choose_wave', app.button_choose_wave)
             elif mouse_in_button(app, app.button_reset_to_defaults, mouse_x, mouse_y):
+                play_click_sound(app)
                 app.button_reset_to_defaults['hovered'] = False
                 reset_settings_to_default()
+            elif mouse_in_button(app, app.button_secret_music,      mouse_x, mouse_y):
+                play_secret_music(app)
 
         case 'chorus_effect':
             test_mouse_in_slider(app, app.chorus_sliders,   mouse_x, mouse_y)
@@ -678,6 +706,7 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_screen(app, 'menu_screen',  app.button_exit)
             elif mouse_in_button(app, app.button_test_wave, mouse_x, mouse_y):
                 # UPDATE PLAY WAVE HERE
+                play_click_sound(app)
                 neon_green = rgb(57, 255, 20)
                 app.button_test_wave['color'] = 'red' if app.button_test_wave['color'] == neon_green else neon_green
 
@@ -685,27 +714,29 @@ def onMousePress(app, mouse_x, mouse_y):
             if   mouse_in_button(app, app.button_exit,       mouse_x, mouse_y):
                 change_screen(app, 'menu_screen',  app.button_exit)
             elif mouse_in_button(app, app.button_increase_1, mouse_x, mouse_y):
-                change_key(+1)
+                change_key(app, +1)
             elif mouse_in_button(app, app.button_decrease_1, mouse_x, mouse_y):
-                change_key(-1)
+                change_key(app, -1)
 
         case 'choose_scale':
             if   mouse_in_button(app, app.button_exit,       mouse_x, mouse_y):
                 change_screen(app, 'menu_screen',  app.button_exit)
             elif mouse_in_button(app, app.button_increase_1, mouse_x, mouse_y):
-                change_scale(+1)
+                change_scale(app, +1)
             elif mouse_in_button(app, app.button_decrease_1, mouse_x, mouse_y):
-                change_scale(-1)
+                change_scale(app, -1)
 
         case 'mono':
             if   mouse_in_button(app, app.button_exit,              mouse_x, mouse_y):
                 change_screen(app, 'menu_screen', app.button_exit)
             elif mouse_in_button(app, app.button_enable_mono_on,  mouse_x, mouse_y) and app.enable_mono:
+                play_click_sound(app)
                 app.enable_mono = False
                 update_settings_file('enable_mono', False)
                 app.button_list_mono.remove(app.button_enable_mono_on)
                 app.button_list_mono.append(app.button_enable_mono_off)
             elif mouse_in_button(app, app.button_enable_mono_off, mouse_x, mouse_y) and not app.enable_mono:
+                play_click_sound(app)
                 app.enable_mono = True
                 update_settings_file('enable_mono', True)
                 app.button_list_mono.remove(app.button_enable_mono_off)
@@ -717,8 +748,10 @@ def onMousePress(app, mouse_x, mouse_y):
             elif mouse_in_button(app, app.button_edit_custom_wave, mouse_x, mouse_y):
                 change_screen(app, 'edit_custom_wave', app.button_edit_custom_wave)
             elif mouse_in_button(app, app.button_increase_1,       mouse_x, mouse_y):
+                play_click_sound(app)
                 change_wave_shape(+1)
             elif mouse_in_button(app, app.button_decrease_1,       mouse_x, mouse_y):
+                play_click_sound(app)
                 change_wave_shape(-1)
 
         case 'edit_custom_wave':
@@ -726,17 +759,22 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_screen(app, 'menu_screen', app.button_exit)
             elif mouse_in_button(app, app.button_decrease_2,        mouse_x, mouse_y):
                 if app.edit_wave_grid_cols == 1: return
+                play_click_sound(app)
                 app.edit_wave_grid_cols -= 1
             elif mouse_in_button(app, app.button_increase_2,        mouse_x, mouse_y):
                 if app.edit_wave_grid_cols == 16: return
+                play_click_sound(app)
                 app.edit_wave_grid_cols += 1
             elif mouse_in_button(app, app.button_decrease_3,        mouse_x, mouse_y):
                 if app.edit_wave_grid_rows == 1: return
+                play_click_sound(app)
                 app.edit_wave_grid_rows -= 1
             elif mouse_in_button(app, app.button_increase_3,        mouse_x, mouse_y):
                 if app.edit_wave_grid_rows == 8: return
+                play_click_sound(app)
                 app.edit_wave_grid_rows += 1
             elif mouse_in_button(app, app.button_reset_custom_wave, mouse_x, mouse_y):
+                play_click_sound(app)
                 app.button_reset_custom_wave['hovered'] = False
                 app.custom_wave = CreateWaveShape('sine', 44100).array
                 update_settings_file('custom_wave', app.custom_wave.tolist())
@@ -749,14 +787,17 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_screen(app, 'menu_screen',  app.button_exit)
             elif mouse_in_button(app, app.button_test_vocoder,       mouse_x, mouse_y):
                 # UPDATE PLAY WAVE HERE
+                play_click_sound(app)
                 neon_green = rgb(57, 255, 20)
                 app.button_test_vocoder['color'] = 'red' if app.button_test_wave['color'] == neon_green else neon_green
             elif mouse_in_button(app, app.button_enable_vocoder_on,  mouse_x, mouse_y) and app.enable_vocoder:
+                play_click_sound(app)
                 app.enable_vocoder = False
                 update_settings_file('enable_vocoder', False)
                 app.button_list_vocoder.remove(app.button_enable_vocoder_on)
                 app.button_list_vocoder.append(app.button_enable_vocoder_off)
             elif mouse_in_button(app, app.button_enable_vocoder_off, mouse_x, mouse_y) and not app.enable_vocoder:
+                play_click_sound(app)
                 app.enable_vocoder = True
                 update_settings_file('enable_vocoder', True)
                 app.button_list_vocoder.remove(app.button_enable_vocoder_off)
@@ -785,10 +826,17 @@ def test_mouse_in_slider(app, slider_list, mouse_x, mouse_y):
             break
 
 def change_screen(app, screen, last_button):
+    play_click_sound(app)
     last_button['hovered'] = False
     app.screen = screen
 
-def change_key(change):
+def play_click_sound(app):
+    app.play_sound_cooldown = 10
+    sfx = Sound('assets\\Click 1.wav')
+    sfx.play()
+
+def change_key(app, change):
+    play_click_sound(app)
     settings = load_settings()
     current_key = settings['key']
 
@@ -796,7 +844,8 @@ def change_key(change):
     new_key = get_key(new_key_index)
     update_settings_file('key', new_key)
 
-def change_scale(change):
+def change_scale(app, change):
+    play_click_sound(app)
     settings = load_settings()
     current_scale = settings['scale']
 
@@ -820,6 +869,13 @@ def edit_wave_check_in_point(app, mouse_x, mouse_y):
                 return col*cell_width + grid_left, row*cell_height + grid_top
 
     return None, None
+
+def play_secret_music(app):
+    app.button_secret_music['color'] = 'green' if app.button_secret_music['color'] is None else None
+    if app.button_secret_music['color'] == 'green':
+        app.bg_music.play(restart=False, loop=True)
+    else:
+        app.bg_music.pause()
 
 def onMouseDrag(app, mouse_x, mouse_y):
     match app.screen:
@@ -850,9 +906,11 @@ def onMouseRelease(app, mouse_x, mouse_y):
 
                 # Normalize and prep values
                 sample_rate = len(app.custom_wave)
-                x0, x1 = pythonRound(x0*sample_rate), pythonRound(x1*sample_rate)
                 if x0 > x1:
                     (x0, y0), (x1, y1) = (x1, y1), (x0, y0)
+                x0, x1 = int(x0*sample_rate), int(x1*sample_rate)
+                x0 = max(0, min(x0, sample_rate - 1))  # clamp x0
+                x1 = max(0, min(x1, sample_rate - 1))  # clamp x1
 
                 y0, y1 = 1 - 2*y0, 1 - 2*y1  # normalize y values to fit to (-1, 1)
 
@@ -868,6 +926,7 @@ def onMouseRelease(app, mouse_x, mouse_y):
 def onStep(app):
     load_buttons(app)
     update_edit_wave_grid(app)
+    if app.play_sound_cooldown != 0: app.play_sound_cooldown -= 1
 
     update_slider_flag = True
     for slider in app.chorus_sliders:
