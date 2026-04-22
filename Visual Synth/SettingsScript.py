@@ -1,47 +1,44 @@
 # dictionaries in this script are likely AI
-def load_settings():  # Taken From AI
-    """Load settings from a text file and return as a dictionary."""
-    settings = {}
-    settings_file = 'settings.txt'
-    try:
-        with open(settings_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    key, value = line.split('=')
-                    key = key.strip()
-                    try:
-                        # Try to convert to float first
-                        settings[key] = float(value.strip())
-                    except ValueError:
-                        # If that fails, keep as string
-                        settings[key] = value.strip()
-    except FileNotFoundError:
-        print(f"Warning: {settings_file} not found. Using default values.")
-    return settings
+import json
+import numpy as np
 
-def update_settings_file(key, value):  # Taken from AI
-    """Update a specific setting in the settings file."""
-    settings_file = 'settings.txt'
+SETTINGS_FILE = 'settings.json'
+DEFAULT_SETTINGS_FILE = 'default_settings.json'
+
+def load_settings():  # Fully taken From AI
+    """Load settings from a JSON file and return as a dictionary."""
+    try:
+        with open(SETTINGS_FILE, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"Warning: {SETTINGS_FILE} not found. Using default values.")
+        return {}
+    except json.JSONDecodeError as e:
+        print(f"Error parsing {SETTINGS_FILE}: {e}")
+        return {}
+
+def update_settings_file(key, value):  # Fully taken from AI
+    """Update a specific setting in the settings JSON file."""
     settings = load_settings()
     settings[key] = value
 
     try:
-        with open(settings_file, 'w') as f:
-            for key, val in settings.items():
-                f.write(f"{key}={val}\n")
+        with open(SETTINGS_FILE, 'w') as f:
+            json.dump(settings, f, indent=4)
     except Exception as e:
         print(f"Error writing to settings file: {e}")
 
-def reset_settings_to_default():  # AI
-    """Reset settings.txt to the default settings from default_settings.txt."""
+def reset_settings_to_default():  # Fully AI
+    """Reset settings.json to the default settings from default_settings.json."""
     try:
-        with open('default_settings.txt', 'r') as f:
-            default_contents = f.read()
-        with open('settings.txt', 'w') as f:
-            f.write(default_contents)
+        with open(DEFAULT_SETTINGS_FILE, 'r') as f:
+            default_settings = json.load(f)
+        with open(SETTINGS_FILE, 'w') as f:
+            json.dump(default_settings, f, indent=4)
     except FileNotFoundError as e:
         print(f"Error: {e}")
+    except json.JSONDecodeError as e:
+        print(f"Error parsing default settings: {e}")
     except Exception as e:
         print(f"Error resetting settings: {e}")
 
@@ -51,8 +48,6 @@ def getScale(scale, key):
     scale_notes = get_scale(scale.lower())
     key_shifter = 2 ** (get_key_index(key) / 12)  # equal temperament factor
     return scale_notes * key_shifter
-
-import numpy as np
 
 def get_key_index(key):
     # Index relative to C (going up)

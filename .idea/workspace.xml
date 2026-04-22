@@ -4,11 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Updated Camera UI">
+    <list default="true" id="0f8c97b5-38ea-466a-8a6f-320fc6538e1d" name="Changes" comment="Camera images">
+      <change afterPath="$PROJECT_DIR$/Visual Synth/default_settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Visual Synth/settings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Visual Synth/Camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/Camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Visual Synth/CreateWaveShape.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/CreateWaveShape.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Visual Synth/SettingsScript.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/SettingsScript.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Visual Synth/default_settings.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Visual Synth/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Visual Synth/settings.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Visual Synth/settings.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Visual Synth/settings.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" beforeDir="false" afterPath="$PROJECT_DIR$/cmu_graphics/meta/updates.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -462,7 +469,23 @@
       <option name="project" value="LOCAL" />
       <updated>1776749043540</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Updates to custom wave editor">
+      <option name="closed" value="true" />
+      <created>1776752595711</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1776752595711</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Camera images">
+      <option name="closed" value="true" />
+      <created>1776752615231</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1776752615231</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -480,8 +503,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Volume easing, better note detection" />
-    <MESSAGE value="File rename" />
     <MESSAGE value="Volume changing implemented, stereo audio added, notes adjusted to justly intonated C4 Major scale" />
     <MESSAGE value="Octaves with thumbs implemented, readme file created, scale and key customizability created" />
     <MESSAGE value="Fixed starting beeps bug" />
@@ -505,7 +526,9 @@
     <MESSAGE value="Moved files, added change wave button, added reset to defaults button" />
     <MESSAGE value="Worked on custom wave page" />
     <MESSAGE value="Updated Camera UI" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated Camera UI" />
+    <MESSAGE value="Updates to custom wave editor" />
+    <MESSAGE value="Camera images" />
+    <option name="LAST_COMMIT_MESSAGE" value="Camera images" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$SineWave.coverage" NAME="SineWave Coverage Results" MODIFIED="1774216872690" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

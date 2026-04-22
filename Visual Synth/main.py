@@ -18,6 +18,7 @@ from cmu_graphics import *
 from Camera import camera
 from CameraVocoder import camera as cameraVocoder
 from SettingsScript import *
+from CreateWaveShape import CreateWaveShape
 
 class Slider:
     def __init__(self, setting, setting_value, range_of_values, x_value, y_range):
@@ -52,8 +53,8 @@ def onAppStart(app):
     app.height = 800
 
     settings = load_settings()
-    app.enable_vocoder = True if settings['enable_vocoder'] == 'True' else False
-    app.enable_mono = True if settings['enable_mono'] == 'True' else False
+    app.enable_vocoder = settings['enable_vocoder']
+    app.enable_mono = settings['enable_mono']
 
     app.screen = 'title_screen'
     app.how_to_play_page = 0
@@ -214,11 +215,11 @@ def load_buttons(app):
     app.button_enable_mono_off['hovered'] = app.button_enable_mono_off.get('hovered', False)
 
     if not hasattr(app, 'button_choose_wave'): app.button_choose_wave = {}
-    app.button_choose_wave['cx'] = int(app.width * .5 - 106 / 2)
+    app.button_choose_wave['cx'] = int(app.width * .5 - 126 / 2)
     app.button_choose_wave['cy'] = int(app.height * .5) - 12
-    app.button_choose_wave['w'] = 104
-    app.button_choose_wave['h'] = 28
-    app.button_choose_wave['text'] = 'Wave'
+    app.button_choose_wave['w'] = 124
+    app.button_choose_wave['h'] = 76
+    app.button_choose_wave['text'] = 'Wave\nShape'
     app.button_choose_wave['size'] = 30
     app.button_choose_wave['color'] = 'purple'
     app.button_choose_wave['hovered'] = app.button_choose_wave.get('hovered', False)
@@ -268,6 +269,16 @@ def load_buttons(app):
     app.button_increase_3['image_off'] = assets_folder + 'Right Arrow.png'
     app.button_increase_3['image_on'] = assets_folder + 'Right Arrow On.png'
     app.button_increase_3['hovered'] = app.button_increase_3.get('hovered', False)
+
+    if not hasattr(app, 'button_reset_custom_wave'): app.button_reset_custom_wave = {}
+    app.button_reset_custom_wave['cx'] = app.width - 204
+    app.button_reset_custom_wave['cy'] = app.height - 26
+    app.button_reset_custom_wave['w'] = 199
+    app.button_reset_custom_wave['h'] = 28
+    app.button_reset_custom_wave['text'] = 'Reset Custom Wave'
+    app.button_reset_custom_wave['size'] = 15
+    app.button_reset_custom_wave['color'] = 'purple'
+    app.button_reset_custom_wave['hovered'] = app.button_reset_custom_wave.get('hovered', False)
 
     if not hasattr(app, 'button_vocoder'): app.button_vocoder = {}
     app.button_vocoder['cx'] = int(app.width * .75 - 156/2)
@@ -331,7 +342,7 @@ def load_buttons(app):
                                         app.button_enable_mono_on if app.enable_mono else app.button_enable_mono_off]
     app.button_list_wave =             [app.button_exit, app.button_increase_1, app.button_decrease_1]
     app.button_list_edit_custom_wave = [app.button_exit, app.button_increase_2, app.button_decrease_2,
-                                        app.button_increase_3, app.button_decrease_3]
+                                        app.button_increase_3, app.button_decrease_3, app.button_reset_custom_wave]
     app.button_list_vocoder =          [app.button_exit, app.button_test_vocoder,
                                         app.button_enable_vocoder_on if app.enable_vocoder
                                         else app.button_enable_vocoder_off]
@@ -358,9 +369,6 @@ def load_sliders(app):
 def load_edit_wave_grid(app):
     app.edit_wave_grid_rows = 3
     app.edit_wave_grid_cols = 6
-
-    # Current implementation is wrong, create the wave shape (np array) and directly update it, then draw it
-    # app.edit_wave_drawn_points = []
     app.edit_wave_curr_line = []
 
 def update_edit_wave_grid(app):
@@ -368,6 +376,13 @@ def update_edit_wave_grid(app):
     app.edit_wave_grid_height = int(app.height * .4)
     app.edit_wave_grid_left = int(app.width * .1)
     app.edit_wave_grid_top = int(app.height * .3)
+
+    settings = load_settings()
+    if settings['custom_wave'] == []:
+        app.custom_wave = CreateWaveShape('sine', 44100).array
+    else:
+        app.custom_wave = settings['custom_wave']
+        app.custom_wave = np.array(app.custom_wave)
 
 def redrawAll(app):
     match app.screen:
@@ -425,6 +440,7 @@ def draw_choose_scale(app):
         draw_button(app, button)
 
 def draw_mono(app):
+    # This function, along with anything relating to draw_mono, was taken from AI (prompted to copy my code)
     draw_background(app)
     drawLabel('Mono', app.width//2, 100, font=app.font, size=60)
     drawLabel('Enable:', app.width//2 - 100, app.height//2, font=app.font, size=40)
@@ -433,6 +449,7 @@ def draw_mono(app):
         draw_button(app, button)
 
 def draw_choose_wave(app):
+    # This function, along with anything relating to draw_choose_wave, was taken from AI (prompted to copy my code)
     draw_background(app)
     drawLabel('Choose Wave', app.width//2, 100, font=app.font, size=60)
 
@@ -482,12 +499,17 @@ def draw_edit_custom_wave(app):
     if app.edit_wave_curr_line != []:
         drawLine(*app.edit_wave_curr_line, fill='white', opacity=80, lineWidth=5)
 
-    # Draw all points connected, Current implementation is wrong
-    # for i in range(len(app.edit_wave_drawn_points) - 1):
-        # Current implementation is wrong
-        # drawLine(app.edit_wave_drawn_points[i][0] * app.width, app.edit_wave_drawn_points[i][1] * app.height,
-        #          app.edit_wave_drawn_points[i+1][0] * app.width, app.edit_wave_drawn_points[i+1][1] * app.height,
-        #          fill='white', lineWidth=5)
+    # Draw all points connected
+    step_size = 100
+    sample_rate = len(app.custom_wave)
+    for i in range(0, len(app.custom_wave) - step_size, step_size):
+        # Convert custom wave values to pixels
+        x0 = ((i)           * (1/sample_rate) * app.edit_wave_grid_width) + app.edit_wave_grid_left
+        x1 = ((i+step_size) * (1/sample_rate) * app.edit_wave_grid_width) + app.edit_wave_grid_left
+        y0 = (((1 - app.custom_wave[i]) / 2)           * app.edit_wave_grid_height) + app.edit_wave_grid_top
+        y1 = (((1 - app.custom_wave[i+step_size]) / 2) * app.edit_wave_grid_height) + app.edit_wave_grid_top
+        x0, x1, y0, y1 = pythonRound(x0), pythonRound(x1), pythonRound(y0), pythonRound(y1)
+        drawLine(x0, y0, x1, y1, fill='purple', lineWidth=3)
 
 def get_cell_size(app):
     cell_width = app.edit_wave_grid_width / app.edit_wave_grid_cols
@@ -700,20 +722,24 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_wave_shape(-1)
 
         case 'edit_custom_wave':
-            if   mouse_in_button(app, app.button_exit,       mouse_x, mouse_y):
+            if   mouse_in_button(app, app.button_exit,              mouse_x, mouse_y):
                 change_screen(app, 'menu_screen', app.button_exit)
-            elif mouse_in_button(app, app.button_decrease_2, mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_decrease_2,        mouse_x, mouse_y):
                 if app.edit_wave_grid_cols == 1: return
                 app.edit_wave_grid_cols -= 1
-            elif mouse_in_button(app, app.button_increase_2, mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_increase_2,        mouse_x, mouse_y):
                 if app.edit_wave_grid_cols == 16: return
                 app.edit_wave_grid_cols += 1
-            elif mouse_in_button(app, app.button_decrease_3, mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_decrease_3,        mouse_x, mouse_y):
                 if app.edit_wave_grid_rows == 1: return
                 app.edit_wave_grid_rows -= 1
-            elif mouse_in_button(app, app.button_increase_3, mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_increase_3,        mouse_x, mouse_y):
                 if app.edit_wave_grid_rows == 8: return
                 app.edit_wave_grid_rows += 1
+            elif mouse_in_button(app, app.button_reset_custom_wave, mouse_x, mouse_y):
+                app.button_reset_custom_wave['hovered'] = False
+                app.custom_wave = CreateWaveShape('sine', 44100).array
+                update_settings_file('custom_wave', app.custom_wave.tolist())
             else:
                 x0, y0 = edit_wave_check_in_point(app, mouse_x, mouse_y)
                 if x0 is not None: app.edit_wave_curr_line = [x0, y0, mouse_x, mouse_y]
@@ -809,16 +835,34 @@ def onMouseRelease(app, mouse_x, mouse_y):
         case 'chorus_effect':
             for slider in app.chorus_sliders:
                 slider.clicked_on = False
+
         case 'edit_custom_wave':
             cell_width, cell_height, circle_size = get_cell_size(app)
-            x1, y1 = edit_wave_check_in_point(app, mouse_x, mouse_y)
+            grid_x1, grid_y1 = edit_wave_check_in_point(app, mouse_x, mouse_y)
 
-            if (app.edit_wave_curr_line != [] and x1 is not None and
+            if (app.edit_wave_curr_line != [] and grid_x1 is not None and
                 distance(app.edit_wave_curr_line[0], app.edit_wave_curr_line[1], mouse_x, mouse_y) > circle_size):
-                pass  # current implementation is wrong
-                # app.edit_wave_drawn_points += [(app.edit_wave_curr_line[0] / app.width,
-                #                                 app.edit_wave_curr_line[1] / app.height),
-                #                                (x1 / app.width, y1 / app.height)]
+                # This section was partially helped by AI (mainly to learn how to use numpy)
+                x0, x1 = ((app.edit_wave_curr_line[0] - app.edit_wave_grid_left) / app.edit_wave_grid_width,
+                          (grid_x1 - app.edit_wave_grid_left) / app.edit_wave_grid_width)
+                y0, y1 = ((app.edit_wave_curr_line[1] - app.edit_wave_grid_top)  / app.edit_wave_grid_height,
+                          (grid_y1 - app.edit_wave_grid_top)  / app.edit_wave_grid_height)
+
+                # Normalize and prep values
+                sample_rate = len(app.custom_wave)
+                x0, x1 = pythonRound(x0*sample_rate), pythonRound(x1*sample_rate)
+                if x0 > x1:
+                    (x0, y0), (x1, y1) = (x1, y1), (x0, y0)
+
+                y0, y1 = 1 - 2*y0, 1 - 2*y1  # normalize y values to fit to (-1, 1)
+
+                # Add line to array
+                num_samples = (x1 - x0 + 1)
+                line = np.linspace(y0, y1, num_samples)
+                app.custom_wave[x0:x1+1] = line  # replace the custom wave with the line
+
+                update_settings_file('custom_wave', app.custom_wave.tolist())
+
             app.edit_wave_curr_line = []
 
 def onStep(app):

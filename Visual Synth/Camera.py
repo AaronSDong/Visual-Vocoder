@@ -24,8 +24,8 @@ def camera():
     mpdraw = mp.solutions.drawing_utils
 
     settings = load_settings()
-    mono = True if settings['enable_mono'] == 'True' else False
-    chorus_bypass = True if settings['chorus_bypass'] == 'True' else False
+    mono = settings['enable_mono']
+    chorus_bypass = settings['chorus_bypass']
     chorus = ChorusSettings(bypass=chorus_bypass, delay=settings['chorus_delay'],
                             depth=settings['chorus_depth'], speed=settings['chorus_speed'],
                             dry_wet=settings['chorus_dry_wet'])

@@ -1,7 +1,9 @@
 import numpy as np
+from SettingsScript import load_settings
 
 class CreateWaveShape:
     def __init__(self, wave_shape, sample_rate):
+        settings = load_settings()
         selectable_waves = {'sine':
                             (np.sin(2 * np.pi * np.arange(sample_rate) / sample_rate)).astype(np.float32),
 
@@ -9,11 +11,15 @@ class CreateWaveShape:
                             np.concatenate((np.ones(sample_rate//2), -np.ones(sample_rate//2))),
 
                             'triangle':
-                                np.concatenate((np.linspace(-1, 1, sample_rate//2, endpoint=False),
-                                                np.linspace(1, -1, sample_rate//2, endpoint=False)),),
+                            np.concatenate((np.linspace(-1, 1, sample_rate//2, endpoint=False),
+                                            np.linspace(1, -1, sample_rate//2, endpoint=False)),),
 
                             'saw':
-                                np.linspace(-1, 1, sample_rate, endpoint=False)
+                            np.linspace(-1, 1, sample_rate, endpoint=False),
+
+                            'custom':
+                            settings['custom_wave'] if settings['custom_wave'] != []
+                            else (np.sin(2 * np.pi * np.arange(sample_rate) / sample_rate)).astype(np.float32),
                             }
 
         try:

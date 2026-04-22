@@ -2,7 +2,8 @@ For visual purposes, download the Pixelated Elegance font. You can do so by open
 and clicking install, or using this link:
 https://www.fontspace.com/pixelated-elegance-font-f126145
 
-The following is a list of things that I did not do/received significant help from an online source:
+The following is a list of things that I did not do/received significant help from an online source
+(any AI used was Claude):
 
 - FPS and Overlay function is entirely taken from AI
 - Initializing objects that are not mine (likely taken from documentation)
