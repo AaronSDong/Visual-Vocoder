@@ -19,7 +19,7 @@ def camera():
     cap.set(cv.CAP_PROP_FPS, 30)
 
     mphands = mp.solutions.hands  # this chunk is taken from documentation (mostly)
-    hands = mphands.Hands(max_num_hands=2, min_detection_confidence=0.4, min_tracking_confidence=0.6,
+    hands = mphands.Hands(max_num_hands=2, min_detection_confidence=0.5, min_tracking_confidence=0.8,
                           static_image_mode=False)
     mpdraw = mp.solutions.drawing_utils
 
@@ -185,11 +185,12 @@ def adjust_palm_values(palm_landmark, wave_list, handedness):
 
     if not wave_list.chorus_bypass and handedness.lower() == wave_list.chorus_hand:
         # These values should be read from a file
-        bypass = False
-        max_delay = 20
-        max_depth = 5
-        max_speed = .4
-        max_dry_wet = .5
+        settings = load_settings()
+        bypass = settings['chorus_bypass']
+        max_delay = settings['chorus_delay']
+        max_depth = settings['chorus_depth']
+        max_speed = settings['chorus_speed']
+        max_dry_wet = settings['chorus_dry_wet']
 
         distance_from_middle = abs(palm_landmark.x -.5) * 2
         # normalize the values to fit in what would have been .3-.8
@@ -302,11 +303,11 @@ def get_maps(handedness):
 
     tolerances = {
         **{i: None for i in range(21)},
-        4:  [0.35, .30, 1.6],  # thumb
-        8:  [0.42, .40, 1.7],  # index
-        12: [0.44, .50, 1.5],  # middle
-        16: [0.44, .40, 1.6],  # ring
-        20: [0.44, .30, 1.5],  # pinky
+        4:  [0.35, .30, 1.8],  # thumb
+        8:  [0.42, .40, 1.9],  # index
+        12: [0.44, .50, 1.7],  # middle
+        16: [0.44, .40, 1.8],  # ring
+        20: [0.44, .30, 1.7],  # pinky
     }
 
     if handedness == 'Left':

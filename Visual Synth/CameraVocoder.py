@@ -297,11 +297,11 @@ def get_maps(handedness):
     }
     tolerances = {
         **{i: None for i in range(21)},
-        4:  [0.3,  0.30, 1.6],
-        8:  [0.38, 0.40, 1.7],
-        12: [0.40, 0.50, 1.5],
-        16: [0.40, 0.40, 1.6],
-        20: [0.40, 0.30, 1.5],
+        4:  [0.35, .30, 1.8],  # thumb
+        8:  [0.42, .40, 1.9],  # index
+        12: [0.44, .50, 1.7],  # middle
+        16: [0.44, .40, 1.8],  # ring
+        20: [0.44, .30, 1.7],  # pinky
     }
     if handedness == 'Left':
         return left_nodes, left_waves, tolerances

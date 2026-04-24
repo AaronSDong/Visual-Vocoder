@@ -1,3 +1,4 @@
+# Old code, unused
 import time
 import numpy as np
 import pyaudio

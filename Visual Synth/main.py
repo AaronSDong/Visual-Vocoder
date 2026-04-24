@@ -12,6 +12,8 @@ fingers will result in the synth playing a tone, with hand movements controlling
 are detected, please see 'Camera.py,' specifically from line 60 down.
 
 All UI elements are contained within 'main.py'
+
+Music, art, and sfx assets were created by me.
 """
 
 from cmu_graphics import *
@@ -50,12 +52,19 @@ class Slider:
         self.convert_pixels_to_value()
 
 def onAppStart(app):
-    app.width = 800
+    app.width = 1000
     app.height = 800
 
     settings = load_settings()
     app.enable_vocoder = settings['enable_vocoder']
     app.enable_mono = settings['enable_mono']
+
+    app.play_sound_cooldown = 10
+    app.bg_music = Sound('assets\\bgMusic.mp3')
+    app.font = 'Pixelated Elegance'
+    app.text_color = rgb(180, 20, 229)
+    app.neon_green = rgb(57, 255, 20)
+    app.hovered_text_color = rgb(255, 0, 255)
 
     app.screen = 'title_screen'
     app.how_to_play_page = 0
@@ -65,17 +74,13 @@ def onAppStart(app):
     load_edit_wave_grid(app)
     update_edit_wave_grid(app)
 
-    app.play_sound_cooldown = 10
-    app.bg_music = Sound('assets\\bgMusic.mp3')
-    app.font = 'Pixelated Elegance'
-
 def load_buttons(app):
     assets_folder = 'assets\\'
     settings = load_settings()
 
     if not hasattr(app, 'button_play'): app.button_play = {}  # idea taken from AI
     app.button_play['cx'] = app.width//2 - 100
-    app.button_play['cy'] = int(app.height * .4375)
+    app.button_play['cy'] = int(app.height * .45)
     app.button_play['w'] = 200
     app.button_play['h'] = 100
     app.button_play['image_off'] = assets_folder + 'Play Button.png'
@@ -93,7 +98,7 @@ def load_buttons(app):
 
     if not hasattr(app, 'button_how_to_play'): app.button_how_to_play = {}
     app.button_how_to_play['cx'] = app.width // 2 - 100
-    app.button_how_to_play['cy'] = int(app.height * .8125)
+    app.button_how_to_play['cy'] = int(app.height * .8)
     app.button_how_to_play['w'] = 200
     app.button_how_to_play['h'] = 100
     app.button_how_to_play['image_off'] = assets_folder + 'How To Play Button.png'
@@ -134,7 +139,7 @@ def load_buttons(app):
     app.button_chorus['h'] = 70
     app.button_chorus['text'] = 'Chorus\nEffect'
     app.button_chorus['size'] = 30
-    app.button_chorus['color'] = 'purple'
+    app.button_chorus['color'] = app.text_color
     app.button_chorus['hovered'] = app.button_chorus.get('hovered', False)
 
     if not hasattr(app, 'button_test_wave'): app.button_test_wave = {}
@@ -144,7 +149,7 @@ def load_buttons(app):
     app.button_test_wave['h'] = 25
     app.button_test_wave['text'] = 'Test Wave'
     app.button_test_wave['size'] = 30
-    app.button_test_wave['color'] = app.button_test_wave.get('color', 'red')
+    app.button_test_wave['color'] = app.button_test_wave.get('color', app.text_color)
     app.button_test_wave['hovered'] = app.button_test_wave.get('hovered', False)
 
     if not hasattr(app, 'button_choose_key'): app.button_choose_key = {}
@@ -154,7 +159,7 @@ def load_buttons(app):
     app.button_choose_key['h'] = 28
     app.button_choose_key['text'] = 'Key'
     app.button_choose_key['size'] = 30
-    app.button_choose_key['color'] = 'purple'
+    app.button_choose_key['color'] = app.text_color
     app.button_choose_key['hovered'] = app.button_choose_key.get('hovered', False)
 
     if not hasattr(app, 'button_decrease_1'): app.button_decrease_1 = {}
@@ -182,7 +187,7 @@ def load_buttons(app):
     app.button_choose_scale['h'] = 28
     app.button_choose_scale['text'] = 'Scale'
     app.button_choose_scale['size'] = 30
-    app.button_choose_scale['color'] = 'purple'
+    app.button_choose_scale['color'] = app.text_color
     app.button_choose_scale['hovered'] = app.button_choose_scale.get('hovered', False)
 
     if not hasattr(app, 'button_mono'): app.button_mono = {}
@@ -192,7 +197,7 @@ def load_buttons(app):
     app.button_mono['h'] = 28
     app.button_mono['text'] = 'Mono'
     app.button_mono['size'] = 30
-    app.button_mono['color'] = 'purple'
+    app.button_mono['color'] = app.text_color
     app.button_mono['hovered'] = app.button_mono.get('hovered', False)
 
     if not hasattr(app, 'button_enable_mono_on'): app.button_enable_mono_on = {}
@@ -202,7 +207,7 @@ def load_buttons(app):
     app.button_enable_mono_on['h'] = 25
     app.button_enable_mono_on['text'] = 'On'
     app.button_enable_mono_on['size'] = 30
-    app.button_enable_mono_on['color'] = app.button_enable_mono_on.get('color', 'red')
+    app.button_enable_mono_on['color'] = app.button_enable_mono_on.get('color', app.text_color)
     app.button_enable_mono_on['hovered'] = app.button_enable_mono_on.get('hovered', False)
 
     if not hasattr(app, 'button_enable_mono_off'): app.button_enable_mono_off = {}
@@ -212,7 +217,7 @@ def load_buttons(app):
     app.button_enable_mono_off['h'] = 25
     app.button_enable_mono_off['text'] = 'Off'
     app.button_enable_mono_off['size'] = 30
-    app.button_enable_mono_off['color'] = app.button_enable_mono_off.get('color', 'red')
+    app.button_enable_mono_off['color'] = app.button_enable_mono_off.get('color', app.text_color)
     app.button_enable_mono_off['hovered'] = app.button_enable_mono_off.get('hovered', False)
 
     if not hasattr(app, 'button_choose_wave'): app.button_choose_wave = {}
@@ -222,7 +227,7 @@ def load_buttons(app):
     app.button_choose_wave['h'] = 76
     app.button_choose_wave['text'] = 'Wave\nShape'
     app.button_choose_wave['size'] = 30
-    app.button_choose_wave['color'] = 'purple'
+    app.button_choose_wave['color'] = app.text_color
     app.button_choose_wave['hovered'] = app.button_choose_wave.get('hovered', False)
 
     if not hasattr(app, 'button_edit_custom_wave'): app.button_edit_custom_wave = {}
@@ -232,7 +237,7 @@ def load_buttons(app):
     app.button_edit_custom_wave['h'] = 22
     app.button_edit_custom_wave['text'] = 'Edit Custom Wave'
     app.button_edit_custom_wave['size'] = 20
-    app.button_edit_custom_wave['color'] = app.button_edit_custom_wave.get('color', 'red')
+    app.button_edit_custom_wave['color'] = app.button_edit_custom_wave.get('color', app.text_color)
     app.button_edit_custom_wave['hovered'] = app.button_edit_custom_wave.get('hovered', False)
 
     if not hasattr(app, 'button_decrease_2'): app.button_decrease_2 = {}
@@ -278,7 +283,7 @@ def load_buttons(app):
     app.button_reset_custom_wave['h'] = 28
     app.button_reset_custom_wave['text'] = 'Reset Custom Wave'
     app.button_reset_custom_wave['size'] = 15
-    app.button_reset_custom_wave['color'] = 'purple'
+    app.button_reset_custom_wave['color'] = app.text_color
     app.button_reset_custom_wave['hovered'] = app.button_reset_custom_wave.get('hovered', False)
 
     if not hasattr(app, 'button_vocoder'): app.button_vocoder = {}
@@ -288,7 +293,7 @@ def load_buttons(app):
     app.button_vocoder['h'] = 28
     app.button_vocoder['text'] = 'Vocoder'
     app.button_vocoder['size'] = 30
-    app.button_vocoder['color'] = 'purple'
+    app.button_vocoder['color'] = app.text_color
     app.button_vocoder['hovered'] = app.button_vocoder.get('hovered', False)
 
     if not hasattr(app, 'button_test_vocoder'): app.button_test_vocoder = {}
@@ -298,7 +303,7 @@ def load_buttons(app):
     app.button_test_vocoder['h'] = 25
     app.button_test_vocoder['text'] = 'Test Vocoder'
     app.button_test_vocoder['size'] = 30
-    app.button_test_vocoder['color'] = app.button_test_vocoder.get('color', 'red')
+    app.button_test_vocoder['color'] = app.button_test_vocoder.get('color', app.text_color)
     app.button_test_vocoder['hovered'] = app.button_test_vocoder.get('hovered', False)
 
     if not hasattr(app, 'button_enable_vocoder_on'): app.button_enable_vocoder_on = {}
@@ -308,7 +313,7 @@ def load_buttons(app):
     app.button_enable_vocoder_on['h'] = 25
     app.button_enable_vocoder_on['text'] = 'On'
     app.button_enable_vocoder_on['size'] = 30
-    app.button_enable_vocoder_on['color'] = app.button_enable_vocoder_on.get('color', 'red')
+    app.button_enable_vocoder_on['color'] = app.button_enable_vocoder_on.get('color', app.text_color)
     app.button_enable_vocoder_on['hovered'] = app.button_enable_vocoder_on.get('hovered', False)
 
     if not hasattr(app, 'button_enable_vocoder_off'): app.button_enable_vocoder_off = {}
@@ -318,7 +323,7 @@ def load_buttons(app):
     app.button_enable_vocoder_off['h'] = 25
     app.button_enable_vocoder_off['text'] = 'Off'
     app.button_enable_vocoder_off['size'] = 30
-    app.button_enable_vocoder_off['color'] = app.button_enable_vocoder_off.get('color', 'red')
+    app.button_enable_vocoder_off['color'] = app.button_enable_vocoder_off.get('color', app.text_color)
     app.button_enable_vocoder_off['hovered'] = app.button_enable_vocoder_off.get('hovered', False)
 
     if not hasattr(app, 'button_reset_to_defaults'): app.button_reset_to_defaults = {}
@@ -328,7 +333,7 @@ def load_buttons(app):
     app.button_reset_to_defaults['h'] = 28
     app.button_reset_to_defaults['text'] = 'Reset To Defaults'
     app.button_reset_to_defaults['size'] = 15
-    app.button_reset_to_defaults['color'] = 'purple'
+    app.button_reset_to_defaults['color'] = app.text_color
     app.button_reset_to_defaults['hovered'] = app.button_reset_to_defaults.get('hovered', False)
 
     if not hasattr(app, 'button_secret_music'): app.button_secret_music = {}
@@ -338,7 +343,7 @@ def load_buttons(app):
     app.button_secret_music['h'] = 28
     app.button_secret_music['text'] = 'Secret Music'
     app.button_secret_music['size'] = 15
-    app.button_secret_music['color'] = app.button_secret_music.get('color', None)
+    app.button_secret_music['color'] = app.button_secret_music.get(app.text_color, None)
     app.button_secret_music['hovered'] = app.button_secret_music.get('hovered', False)
 
     # if statements by AI
@@ -410,19 +415,19 @@ def redrawAll(app):
 
 def draw_title_screen(app):
     draw_background(app)
-    drawLabel('Visual Synthesizer!', app.width // 2, app.height // 4, font=app.font, size=40)
+    # drawLabel('Visual Synthesizer!', app.width // 2, app.height // 4, font=app.font, size=40, fill='magenta')
     for button in app.button_list_title_screen:
         draw_button(app, button)
 
 def draw_menu_screen(app):
     draw_background(app)
-    drawLabel('Menu', app.width//2, 100, font=app.font, size=60)
+    drawLabel('Menu', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
     for button in app.button_list_menu:
         draw_button(app, button)
 
 def draw_chorus_effect(app):
     draw_background(app)
-    drawLabel('Chorus Effect', app.width//2, 100, font=app.font, size=60)
+    drawLabel('Chorus Effect', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
     drawImage('Assets\\Menu Button.png', app.width//2, int(app.height * .45), width=600, height=300, align='center')
     for button in app.button_list_chorus_effect:
         draw_button(app, button)
@@ -432,20 +437,20 @@ def draw_chorus_effect(app):
 
 def draw_choose_key(app):
     draw_background(app)
-    drawLabel('Choose Key', app.width//2, 100, font=app.font, size=60)
+    drawLabel('Choose Key', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
 
     settings = load_settings()
-    drawLabel(settings['key'], app.width//2, int(app.height*.4), font=app.font, size=80)
+    drawLabel(settings['key'], app.width//2, int(app.height*.4), font=app.font, size=80, fill=app.text_color)
 
     for button in app.button_list_key:
         draw_button(app, button)
 
 def draw_choose_scale(app):
     draw_background(app)
-    drawLabel('Choose Scale', app.width//2, 100, font=app.font, size=60)
+    drawLabel('Choose Scale', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
 
     settings = load_settings()
-    drawLabel(settings['scale'], app.width//2, int(app.height*.4), font=app.font, size=50)
+    drawLabel(settings['scale'], app.width//2, int(app.height*.4), font=app.font, size=50, fill=app.text_color)
 
     for button in app.button_list_key:
         draw_button(app, button)
@@ -453,8 +458,8 @@ def draw_choose_scale(app):
 def draw_mono(app):
     # This function, along with anything relating to draw_mono, was taken from AI (prompted to copy my code)
     draw_background(app)
-    drawLabel('Mono', app.width//2, 100, font=app.font, size=60)
-    drawLabel('Enable:', app.width//2 - 100, app.height//2, font=app.font, size=40)
+    drawLabel('Mono', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
+    drawLabel('Enable:', app.width//2 - 100, app.height//2, font=app.font, size=40, fill=app.text_color)
 
     for button in app.button_list_mono:
         draw_button(app, button)
@@ -462,23 +467,25 @@ def draw_mono(app):
 def draw_choose_wave(app):
     # This function, along with anything relating to draw_choose_wave, was taken from AI (prompted to copy my code)
     draw_background(app)
-    drawLabel('Choose Wave', app.width//2, 100, font=app.font, size=60)
+    drawLabel('Choose Wave', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
 
     settings = load_settings()
-    drawLabel(settings['wave_shape'], app.width//2, int(app.height*.4), font=app.font, size=50)
+    drawLabel(settings['wave_shape'], app.width//2, int(app.height*.4), font=app.font, size=50, fill=app.text_color)
 
     for button in app.button_list_wave:
         draw_button(app, button)
 
 def draw_edit_custom_wave(app):
     draw_background(app)
-    drawLabel('Wave Editor', app.width//2, 100, font=app.font, size=60)
+    drawLabel('Wave Editor', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
     for button in app.button_list_edit_custom_wave:
         draw_button(app, button)
 
     # Grid incrementors
-    drawLabel(f'Grid X: {app.edit_wave_grid_cols}', int(app.width * .25), int(app.height * .84), font=app.font, size=30)
-    drawLabel(f'Grid Y: {app.edit_wave_grid_rows}', int(app.width * .75), int(app.height * .84), font=app.font, size=30)
+    drawLabel(f'Grid X: {app.edit_wave_grid_cols}', int(app.width * .25), int(app.height * .84),
+              font=app.font, size=30, fill=app.text_color)
+    drawLabel(f'Grid Y: {app.edit_wave_grid_rows}', int(app.width * .75), int(app.height * .84),
+              font=app.font, size=30, fill=app.text_color)
 
     # Grid variables
     grid_width = app.edit_wave_grid_width
@@ -531,19 +538,21 @@ def get_cell_size(app):
 
 def draw_vocoder(app):
     draw_background(app)
-    drawLabel('Vocoder', app.width//2, 100, font=app.font, size=60)
-    drawLabel('Enable:', app.width//2 - 100, app.height//2, font=app.font, size=40)
-    drawLabel('*Note: enabling the vocoder will', 10, app.height-40, font=app.font, size=12, align='left')
-    drawLabel('disable regular synthesizer functionality',  10, app.height-20, font=app.font, size=12, align='left')
+    drawLabel('Vocoder', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
+    drawLabel('Enable:', app.width//2 - 100, app.height//2, font=app.font, size=40, fill=app.text_color)
+    drawLabel('*Note: enabling the vocoder will', 10, app.height-40,
+              font=app.font, size=12, fill=app.text_color, align='left')
+    drawLabel('disable regular synthesizer functionality',  10, app.height-20,
+              font=app.font, size=12, fill=app.text_color, align='left')
 
     for button in app.button_list_vocoder:
         draw_button(app, button)
 
 def draw_how_to_play(app):
     draw_background(app)
-    drawLabel('How To Play', app.width//2, 100, font=app.font, size=60)
+    drawLabel('How To Play', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
     drawLabel(f'{app.how_to_play_page + 1} / {app.how_to_play_page_count}', app.width//2, app.height - 100,
-              font=app.font, size=30)
+              font=app.font, size=30, fill=app.text_color)
     draw_button(app, app.button_exit)
     draw_button(app, app.button_left)
     draw_button(app, app.button_right)
@@ -562,7 +571,8 @@ hands stand out from the background, and no light
 source is directly hitting your camera."""
             for i in range(len(paragraph.splitlines())):
                 line = paragraph.splitlines()[i]
-                drawLabel(line, app.width//2, paragraph_start + line_spacing*i, font=app.font, size=16)
+                drawLabel(line, app.width//2, paragraph_start + line_spacing*i,
+                          font=app.font, size=16, fill=app.text_color)
         case 1:
             paragraph = """\
 Each of the numbered fingers corresponds to a note
@@ -572,7 +582,8 @@ your left hand; if this is not the case, move
 your hands away from the camera and try again."""
             for i in range(len(paragraph.splitlines())):
                 line = paragraph.splitlines()[i]
-                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i, font=app.font, size=16)
+                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i,
+                          font=app.font, size=16, fill=app.text_color)
         case 2:
             paragraph = """\
 Bend your finger inward to play a note. The circle
@@ -582,7 +593,8 @@ be played. All 8 notes can be played at the same
 time, although this may cause lag."""
             for i in range(len(paragraph.splitlines())):
                 line = paragraph.splitlines()[i]
-                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i, font=app.font, size=16)
+                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i,
+                          font=app.font, size=16, fill=app.text_color)
         case 3:
             paragraph = """\
 Thumbs control the octave that you play at. To
@@ -592,7 +604,8 @@ system: the right thumb increases the octave by 1
 while the left thumb increases the octave by 2."""
             for i in range(len(paragraph.splitlines())):
                 line = paragraph.splitlines()[i]
-                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i, font=app.font, size=16)
+                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i,
+                          font=app.font, size=16, fill=app.text_color)
         case 4:
             paragraph = """\
 Move your hand up to increase volume. Volume is
@@ -601,7 +614,8 @@ hand up will increase audio on the left, and
 moving your right will increase audio on the right."""
             for i in range(len(paragraph.splitlines())):
                 line = paragraph.splitlines()[i]
-                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i, font=app.font, size=16)
+                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i,
+                          font=app.font, size=16, fill=app.text_color)
         case 5:
             paragraph = """\
 Finally, move your hands to the side to add
@@ -610,13 +624,15 @@ your left hand will add a chorus effect to
 your synth."""
             for i in range(len(paragraph.splitlines())):
                 line = paragraph.splitlines()[i]
-                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i, font=app.font, size=16)
+                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i,
+                          font=app.font, size=16, fill=app.text_color)
         case 6:
             paragraph = """\
 Enjoy!"""
             for i in range(len(paragraph.splitlines())):
                 line = paragraph.splitlines()[i]
-                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i, font=app.font, size=16)
+                drawLabel(line, app.width // 2, paragraph_start + line_spacing * i,
+                          font=app.font, size=16, fill=app.text_color)
 
 def draw_button(app, button):
     if 'image_on' in button:
@@ -625,7 +641,7 @@ def draw_button(app, button):
 
     # Text buttons
     else:
-        color = 'cyan' if button['hovered'] else button['color']
+        color = app.hovered_text_color if button['hovered'] else button['color']
 
         # Secret button stuff
         opacity = 100 if color is not None else 0
@@ -637,7 +653,12 @@ def draw_button(app, button):
                       size=button['size'], font=app.font, fill=color, opacity=opacity, align='top-left')
 
 def draw_background(app):
-    drawRect(0, 0, app.width, app.height, fill='pink')
+    x = (-1440 + app.width) / 2
+    y = (-829 + app.height) / 2
+    if app.screen == 'title_screen':
+        drawImage('assets\\Background 1.1.png', x, y, width=1440, height=829, fill='pink')
+    else:
+        drawImage('assets\\Background.png', 0, 0, width=app.width, height=app.height, fill='pink')
 
 def onMouseMove(app, mouse_x, mouse_y):
     match app.screen:
@@ -707,8 +728,10 @@ def onMousePress(app, mouse_x, mouse_y):
             elif mouse_in_button(app, app.button_test_wave, mouse_x, mouse_y):
                 # UPDATE PLAY WAVE HERE
                 play_click_sound(app)
-                neon_green = rgb(57, 255, 20)
-                app.button_test_wave['color'] = 'red' if app.button_test_wave['color'] == neon_green else neon_green
+                if app.button_test_wave['color'] == app.text_color:
+                    app.button_test_wave['color'] = app.neon_green
+                else:
+                    app.button_test_wave['color'] = app.text_color
 
         case 'choose_key':
             if   mouse_in_button(app, app.button_exit,       mouse_x, mouse_y):
@@ -789,7 +812,10 @@ def onMousePress(app, mouse_x, mouse_y):
                 # UPDATE PLAY WAVE HERE
                 play_click_sound(app)
                 neon_green = rgb(57, 255, 20)
-                app.button_test_vocoder['color'] = 'red' if app.button_test_wave['color'] == neon_green else neon_green
+                if app.button_test_vocoder['color'] == app.text_color:
+                    app.button_test_vocoder['color'] = app.neon_green
+                else:
+                    app.button_test_vocoder['color'] = app.text_color
             elif mouse_in_button(app, app.button_enable_vocoder_on,  mouse_x, mouse_y) and app.enable_vocoder:
                 play_click_sound(app)
                 app.enable_vocoder = False
@@ -808,9 +834,11 @@ def onMousePress(app, mouse_x, mouse_y):
                 change_screen(app, 'title_screen', app.button_exit)
             elif mouse_in_button(app, app.button_left,  mouse_x, mouse_y):
                 app.button_left['hovered'] = False
+                play_click_sound(app)
                 app.how_to_play_page = (app.how_to_play_page - 1) % app.how_to_play_page_count
             elif mouse_in_button(app, app.button_right, mouse_x, mouse_y):
                 app.button_left['hovered'] = False
+                play_click_sound(app)
                 app.how_to_play_page = (app.how_to_play_page + 1) % app.how_to_play_page_count
 
 def mouse_in_button(app, button, mouse_x, mouse_y):
