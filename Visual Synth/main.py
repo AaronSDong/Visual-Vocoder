@@ -14,6 +14,32 @@ are detected, please see 'Camera.py,' specifically from line 60 down.
 All UI elements are contained within 'main.py'
 
 Music, art, and sfx assets were created by me.
+
+AI Usage:
+The following is a list of things that I did not do/received significant help from an online source
+(any AI used was Claude):
+
+- FPS and Overlay function is entirely taken from AI
+- Initializing objects that are not mine (likely taken from documentation)
+- Fundamental infrastructure regarding OpenCV, MediaPipe, and PyAudio (documentation / AI)
+- Implementation of mpdraw.draw_landmarks (edited from documentation)
+- Misc. organization ideas, such as using unpacking to initialize dictionaries or using getattr (AI)
+- Many 'busy work' dictionaries were created by AI (scales and note values are often information that is hard/tedious to
+      calculate, or at worst are arbitrarily determined and require online resources regardless)
+- Suppressing error messages from outdated modules (AI)
+- Occasional refactoring edits (AI)
+- Partial edits to vocoder (AI)
+- Combination of Vocoder and Camera (AI)
+- Settings File (AI)
+- Mono and Change Wave menu button (AI, prompted to copy current human-made code)
+- Reset Default settings function (AI)
+- Partially helped with custom wave editor (AI)
+
+Font:
+For visual purposes, download the Pixelated Elegance font. You can do so by opening the .ttf file in the file directory
+and clicking install, or using this link:
+https://www.fontspace.com/pixelated-elegance-font-f126145
+
 """
 
 from cmu_graphics import *
@@ -51,6 +77,14 @@ class Slider:
         else: self.y_value = y
         self.convert_pixels_to_value()
 
+    def update_window(self, x, y):
+        old_y_length = self.y_range[1] - self.y_range[0]
+        self.x_value = int(x)
+        self.y_range = int(y[0]), int(y[1])
+
+        new_y_length = self.y_range[1] - self.y_range[0]
+        self.y_value = int(self.y_value * (new_y_length / old_y_length))
+
 def onAppStart(app):
     app.width = 1000
     app.height = 800
@@ -61,6 +95,7 @@ def onAppStart(app):
 
     app.play_sound_cooldown = 10
     app.bg_music = Sound('assets\\bgMusic.mp3')
+    app.bg_on = False
     app.font = 'Pixelated Elegance'
     app.text_color = rgb(180, 20, 229)
     app.neon_green = rgb(57, 255, 20)
@@ -77,6 +112,8 @@ def onAppStart(app):
 def load_buttons(app):
     assets_folder = 'assets\\'
     settings = load_settings()
+    app.enable_vocoder = settings['enable_vocoder']
+    app.enable_mono = settings['enable_mono']
 
     if not hasattr(app, 'button_play'): app.button_play = {}  # idea taken from AI
     app.button_play['cx'] = app.width//2 - 100
@@ -141,6 +178,18 @@ def load_buttons(app):
     app.button_chorus['size'] = 30
     app.button_chorus['color'] = app.text_color
     app.button_chorus['hovered'] = app.button_chorus.get('hovered', False)
+
+    if not hasattr(app, 'button_chorus_bypass'): app.button_chorus_bypass = {}
+    chorus_bypass = 'On' if settings['chorus_bypass'] else 'Off'
+    chorus_color = 'grey' if settings['chorus_bypass'] else app.text_color
+    app.button_chorus_bypass['cx'] = app.width // 2 - 242
+    app.button_chorus_bypass['cy'] = int(app.height * .45) + 90
+    app.button_chorus_bypass['w'] = 98 if settings['chorus_bypass'] else 110
+    app.button_chorus_bypass['h'] = 18
+    app.button_chorus_bypass['text'] = f'Bypass: {chorus_bypass}'
+    app.button_chorus_bypass['size'] = 15
+    app.button_chorus_bypass['color'] = app.button_chorus_bypass.get('color', chorus_color)
+    app.button_chorus_bypass['hovered'] = app.button_chorus_bypass.get('hovered', False)
 
     if not hasattr(app, 'button_test_wave'): app.button_test_wave = {}
     app.button_test_wave['cx'] = app.width // 2 - (210//2)
@@ -351,7 +400,7 @@ def load_buttons(app):
     app.button_list_menu =             [app.button_exit, app.button_chorus, app.button_choose_key,
                                         app.button_choose_scale, app.button_mono, app.button_choose_wave,
                                         app.button_vocoder, app.button_reset_to_defaults, app.button_secret_music]
-    app.button_list_chorus_effect =    [app.button_exit, app.button_test_wave]
+    app.button_list_chorus_effect =    [app.button_exit, app.button_chorus_bypass]
     app.button_list_key =              [app.button_exit, app.button_increase_1, app.button_decrease_1]
     app.button_list_scale =            [app.button_exit, app.button_increase_1, app.button_decrease_1]
     app.button_list_mono =             [app.button_exit,
@@ -359,7 +408,7 @@ def load_buttons(app):
     app.button_list_wave =             [app.button_exit, app.button_increase_1, app.button_decrease_1]
     app.button_list_edit_custom_wave = [app.button_exit, app.button_increase_2, app.button_decrease_2,
                                         app.button_increase_3, app.button_decrease_3, app.button_reset_custom_wave]
-    app.button_list_vocoder =          [app.button_exit, app.button_test_vocoder,
+    app.button_list_vocoder =          [app.button_exit,
                                         app.button_enable_vocoder_on if app.enable_vocoder
                                         else app.button_enable_vocoder_off]
     app.button_list_how_to_play =      [app.button_exit, app.button_right, app.button_left]
@@ -369,18 +418,28 @@ def load_buttons(app):
 def load_sliders(app):
     app.slider_size = 30
     settings = load_settings()
-    chorus_slider_y_range = (int(app.height * .45) - 90, int(app.height * .45) + 90)  # Taken from the pedal size
+    chorus_slider_y_range = (int(app.height * 0.45) - 90, int(app.height * 0.45) + 90)  # Taken from pedal size
 
     chorus_delay_slider =   Slider('chorus_delay', settings['chorus_delay'], (5, 50),
-                                   app.width//2 -  70, chorus_slider_y_range)
+                                   app.width*.428, chorus_slider_y_range)
     chorus_depth_slider =   Slider('chorus_depth', settings['chorus_depth'], (1, 30),
-                                   app.width//2 +  20, chorus_slider_y_range)
+                                   app.width*.518, chorus_slider_y_range)
     chorus_speed_slider =   Slider('chorus_speed', settings['chorus_speed'], (.1, 2),
-                                   app.width//2 + 110, chorus_slider_y_range)
+                                   app.width*.608, chorus_slider_y_range)
     chorus_dry_wet_slider = Slider('chorus_dry_wet', settings['chorus_dry_wet'], (0, 1),
-                                   app.width//2 + 200, chorus_slider_y_range)
+                                   app.width*.698, chorus_slider_y_range)
 
     app.chorus_sliders = [chorus_delay_slider, chorus_depth_slider, chorus_speed_slider, chorus_dry_wet_slider]
+
+def update_slides(app):
+    chorus_effect_width = 600
+    rescale_app_y = app.height / 800
+    chorus_slider_y_range = (int(app.height * 0.45) - 90*rescale_app_y,
+                             int(app.height * 0.45) + 90*rescale_app_y)  # Taken from pedal size
+    app.chorus_sliders[0].update_window(app.width * .5 - chorus_effect_width*.12, chorus_slider_y_range)
+    app.chorus_sliders[1].update_window(app.width * .5 + chorus_effect_width*.03, chorus_slider_y_range)
+    app.chorus_sliders[2].update_window(app.width * .5 + chorus_effect_width*.18, chorus_slider_y_range)
+    app.chorus_sliders[3].update_window(app.width * .5 + chorus_effect_width*.33, chorus_slider_y_range)
 
 def load_edit_wave_grid(app):
     app.edit_wave_grid_rows = 3
@@ -427,13 +486,24 @@ def draw_menu_screen(app):
 
 def draw_chorus_effect(app):
     draw_background(app)
+    opacity = 100 if app.button_chorus_bypass['text'] == 'Bypass: Off' else 50
     drawLabel('Chorus Effect', app.width//2, 100, font=app.font, size=60, fill=app.text_color)
-    drawImage('Assets\\Menu Button.png', app.width//2, int(app.height * .45), width=600, height=300, align='center')
+    drawImage('Assets\\Chorus Effect.png', app.width//2, int(app.height * .45),
+              width=600, height=300, opacity=opacity, align='center')
+
     for button in app.button_list_chorus_effect:
         draw_button(app, button)
 
-    for slider in app.chorus_sliders:
-        drawRect(slider.x_value, slider.y_value, app.slider_size, app.slider_size, fill='white', align='center')
+    for i, slider in enumerate(app.chorus_sliders):
+        drawRect(slider.x_value, slider.y_value, app.slider_size, app.slider_size,
+                 fill='white', opacity=opacity, align='center')
+
+        # Editing setting text
+        setting = f'{slider.setting[7:]}: {slider.setting_value} '
+        if i in (0, 1): setting += 'ms'
+        if i == 2:      setting += 'Hz'
+        drawLabel(setting, slider.x_value, app.height*.45 + 112,
+                  font=app.font, size=8, fill=app.text_color, opacity=opacity)
 
 def draw_choose_key(app):
     draw_background(app)
@@ -643,9 +713,12 @@ def draw_button(app, button):
     else:
         color = app.hovered_text_color if button['hovered'] else button['color']
 
-        # Secret button stuff
-        opacity = 100 if color is not None else 0
-        if color is None: color = 'black'
+        # Specific buttons
+        opacity = 100
+        if   color == None:   opacity = 0
+        elif color == 'grey': opacity = 40
+
+        if color is None: color = 'black'  # Handles weirdness with color=None
 
         for i in range(len(button['text'].splitlines())):
             line = button['text'].splitlines()[i]
@@ -718,14 +791,21 @@ def onMousePress(app, mouse_x, mouse_y):
                 play_click_sound(app)
                 app.button_reset_to_defaults['hovered'] = False
                 reset_settings_to_default()
+                load_sliders(app)
             elif mouse_in_button(app, app.button_secret_music,      mouse_x, mouse_y):
                 play_secret_music(app)
 
         case 'chorus_effect':
-            test_mouse_in_slider(app, app.chorus_sliders,   mouse_x, mouse_y)
-            if   mouse_in_button(app, app.button_exit,      mouse_x, mouse_y):
+            test_mouse_in_slider(app, app.chorus_sliders,       mouse_x, mouse_y)
+            if   mouse_in_button(app, app.button_exit,          mouse_x, mouse_y):
                 change_screen(app, 'menu_screen',  app.button_exit)
-            elif mouse_in_button(app, app.button_test_wave, mouse_x, mouse_y):
+            elif mouse_in_button(app, app.button_chorus_bypass, mouse_x, mouse_y):
+                play_click_sound(app)
+                settings = load_settings()
+                new_bypass = not settings['chorus_bypass']
+                update_settings_file('chorus_bypass', new_bypass)
+                app.button_chorus_bypass['color'] = 'grey' if new_bypass else app.text_color
+            elif mouse_in_button(app, app.button_test_wave,     mouse_x, mouse_y):
                 # UPDATE PLAY WAVE HERE
                 play_click_sound(app)
                 if app.button_test_wave['color'] == app.text_color:
@@ -899,10 +979,12 @@ def edit_wave_check_in_point(app, mouse_x, mouse_y):
     return None, None
 
 def play_secret_music(app):
-    app.button_secret_music['color'] = 'green' if app.button_secret_music['color'] is None else None
-    if app.button_secret_music['color'] == 'green':
+    app.button_secret_music['color'] = app.text_color if app.button_secret_music['color'] is None else None
+    if not app.bg_on:
+        app.bg_on = True
         app.bg_music.play(restart=False, loop=True)
     else:
+        app.bg_on = False
         app.bg_music.pause()
 
 def onMouseDrag(app, mouse_x, mouse_y):
@@ -926,13 +1008,13 @@ def onMouseRelease(app, mouse_x, mouse_y):
 
             if (app.edit_wave_curr_line != [] and grid_x1 is not None and
                 distance(app.edit_wave_curr_line[0], app.edit_wave_curr_line[1], mouse_x, mouse_y) > circle_size):
-                # This section was partially helped by AI (mainly to learn how to use numpy)
                 x0, x1 = ((app.edit_wave_curr_line[0] - app.edit_wave_grid_left) / app.edit_wave_grid_width,
                           (grid_x1 - app.edit_wave_grid_left) / app.edit_wave_grid_width)
                 y0, y1 = ((app.edit_wave_curr_line[1] - app.edit_wave_grid_top)  / app.edit_wave_grid_height,
                           (grid_y1 - app.edit_wave_grid_top)  / app.edit_wave_grid_height)
 
                 # Normalize and prep values
+                # This section was partially helped by AI (mainly to learn how to use numpy)
                 sample_rate = len(app.custom_wave)
                 if x0 > x1:
                     (x0, y0), (x1, y1) = (x1, y1), (x0, y0)
@@ -954,6 +1036,7 @@ def onMouseRelease(app, mouse_x, mouse_y):
 def onStep(app):
     load_buttons(app)
     update_edit_wave_grid(app)
+    update_slides(app)
     if app.play_sound_cooldown != 0: app.play_sound_cooldown -= 1
 
     update_slider_flag = True

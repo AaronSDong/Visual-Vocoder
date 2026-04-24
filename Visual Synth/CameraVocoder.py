@@ -13,12 +13,13 @@ from SettingsScript import load_settings, getScale
 import warnings
 
 warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')
+TEXT_COLOR = (199, 66, 193)
 
 # --- Vocoder State ---
 # Each of the 8 finger slots maps to a frequency; None means that slot is inactive.
 # The vocoder blends all active frequencies (or passes through if none active).
 
-class VocoderState:
+class VocoderState:  # this class is exempt
     def __init__(self):
         self.scale_type = 'major'
         self.key = 'C'
@@ -76,7 +77,7 @@ def vocoder_thread(state: VocoderState):
     while state.running:
         raw = input_stream.read(chunk, exception_on_overflow=False)
         audio_np = np.frombuffer(raw, dtype=np.float32).astype(np.float64)
-        audio_np = audio_np * 5  # input gain
+        audio_np = audio_np * 10  # input gain
 
         rms = np.sqrt(np.mean(audio_np ** 2))
         vol = state.get_volume()
@@ -119,20 +120,11 @@ def vocoder_thread(state: VocoderState):
 
 # --- Camera / Hand tracking (same structure as before) ---
 
-def calculate_fps(prev_time, frame):
-    current_time = time.time()
-    fps = 1 / (current_time - prev_time)
-    prev_time = current_time
-    fps_text = f"FPS: {fps:.0f}"
-    cv.putText(frame, fps_text, (10, 30), cv.FONT_HERSHEY_SIMPLEX, .5, (0, 255, 0), 2)
-    return prev_time
-
-
 def camera():
     mirrored_camera = True
     cap = cv.VideoCapture(0)
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, 300)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 360)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, 900)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
     cap.set(cv.CAP_PROP_FPS, 30)
 
     mphands = mp.solutions.hands
@@ -154,10 +146,10 @@ def camera():
     while True:
         _, frame = cap.read()
         if mirrored_camera: frame = cv.flip(frame, 1)
-        prev_time = calculate_fps(prev_time, frame)
         cv.putText(frame, 'press q to exit', (10, 50),
                    cv.FONT_HERSHEY_SIMPLEX, .5, (0, 255, 0), 2)
         process_hands(frame, hands, mphands, mpdraw, state, mirrored_camera)
+        frame, prev_time = draw_ui(state, frame, prev_time)
 
         cv.imshow('frame', frame)
         if cv.waitKey(1) == ord('q'):
@@ -167,6 +159,60 @@ def camera():
     vt.join(timeout=2)
     cap.release()
     cv.destroyAllWindows()
+
+def draw_ui(state: VocoderState, frame, prev_time):
+    # UI background
+    overlay_image(frame, 'Assets\\Button Background.png', (300, 150))
+    cv.putText(frame, '----Press q to exit----', (40, 32),
+               cv.FONT_HERSHEY_SIMPLEX, .5, TEXT_COLOR, 1)
+
+    # Volume elements
+    vol_left  = state.volume
+    vol_right = state.volume
+    cv.putText(frame, f'Left Volume = {vol_left*100:.1f}%',   (25, 50),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+    cv.putText(frame, f'Right Volume = {vol_right*100:.1f}%', (25, 65),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+
+    # Chorus elements
+    cv.putText(frame, f'Chorus Delay: BYPASSED',   (145, 50),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+    cv.putText(frame, f'Chorus Depth: BYPASSED',   (145, 65),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+    cv.putText(frame, f'Chorus Speed: BYPASSED',   (145, 80),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+    cv.putText(frame, f'Chorus Dry-Wet: BYPASSED', (145, 95),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+
+    # Notes played
+    note_played = state.get_target_frequency()
+    cv.putText(frame, f'Notes playing: {note_played}', (25, 120),
+               cv.FONT_HERSHEY_SIMPLEX, .3, TEXT_COLOR, 1)
+
+    prev_time = calculate_fps(prev_time, frame)
+    return frame, prev_time
+
+def calculate_fps(prev_time, frame):  # AI
+    current_time = time.time()
+    fps = 1 / (current_time - prev_time)
+    prev_time = current_time
+
+    fps_text = f"FPS: {fps:.0f}"
+    cv.putText(frame, fps_text, (860, 20), cv.FONT_HERSHEY_SIMPLEX, .8, TEXT_COLOR, 2)
+    return prev_time
+
+def overlay_image(frame, overlay_path, size=(60, 60)):  # AI
+    overlay = cv.imread(overlay_path, cv.IMREAD_UNCHANGED)
+    overlay = cv.resize(overlay, size)
+    h, w = overlay.shape[:2]
+
+    # Handle transparency (PNG with alpha channel)
+    if overlay.shape[2] == 4:
+        alpha = overlay[:, :, 3:] / 255.0
+        overlay_rgb = overlay[:, :, :3]
+        frame[:h, :w] = (alpha * overlay_rgb + (1 - alpha) * frame[:h, :w]).astype('uint8')
+    else:
+        frame[:h, :w] = overlay
 
 def process_hands(frame, hands, mphands, mpdraw, state: VocoderState, mirrored_camera):
     result = hands.process(frame)
